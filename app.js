@@ -102,7 +102,15 @@ const EXERCISES = [
 ];
 const EX = Object.fromEntries(EXERCISES.map(e => [e.id, e]));
 
+const FEATURES = [
+  { key: 'timer', label: '순서 가이드 + 타이머', desc: '끄면 자동으로 넘어가지 않고, 한 번 할 때마다 직접 눌러 넘깁니다.' },
+  { key: 'sound', label: '음성/소리 안내', desc: '끄면 음성과 효과음 없이 화면으로만 안내합니다.' },
+  { key: 'log', label: '매일 기록/달력', desc: '끄면 기록 탭과 연속 일수가 숨겨지고 새 기록을 저장하지 않습니다. (기존 기록은 보관)' },
+  { key: 'guide', label: '자세 설명/주의사항', desc: '끄면 ⓘ 설명 버튼과 운동 중 자세 안내 문구가 숨겨집니다.' },
+];
+
 const DEFAULTS = {
+  features: { timer: true, sound: true, log: true, guide: true },
   prep: 10,
   voice: true,
   count: true,
@@ -139,6 +147,7 @@ const clone = o => JSON.parse(JSON.stringify(o));
 function loadSettings() {
   const saved = store.get('cf.settings', {});
   const s = { ...clone(DEFAULTS), ...saved, ex: clone(DEFAULTS.ex) };
+  s.features = { ...DEFAULTS.features, ...(saved.features || {}) };
   for (const id of Object.keys(DEFAULTS.ex)) s.ex[id] = { ...DEFAULTS.ex[id], ...(saved.ex?.[id] || {}) };
   return s;
 }
@@ -146,6 +155,7 @@ let settings = loadSettings();
 let log = store.get('cf.log', {});
 const saveSettings = () => store.set('cf.settings', settings);
 const saveLog = () => store.set('cf.log', log);
+const on = key => settings.features[key];
 
 /* ───────────────── 날짜 도우미 ───────────────── */
 const pad = n => String(n).padStart(2, '0');
@@ -164,7 +174,7 @@ function streak() {
 /* ───────────────── 소리 & 음성 ───────────────── */
 let audioCtx;
 function beep(freq = 880, ms = 120, vol = 0.25) {
-  if (!settings.beep) return;
+  if (!on('sound') || !settings.beep) return;
   try {
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -187,7 +197,7 @@ if ('speechSynthesis' in window) {
   speechSynthesis.onvoiceschanged = pickVoice;
 }
 function say(text, { interrupt = true } = {}) {
-  if (!settings.voice || !text || !('speechSynthesis' in window)) return;
+  if (!on('sound') || !settings.voice || !text || !('speechSynthesis' in window)) return;
   if (interrupt) speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'ko-KR';
@@ -215,6 +225,7 @@ const fmtSec = s => s >= 60 ? `${Math.floor(s / 60)}분${s % 60 ? ` ${s % 60}초
 function summary(id) {
   const c = settings.ex[id];
   const side = EX[id].alternate ? ' (좌우 번갈아)' : '';
+  if (!on('timer')) return `${c.reps}회${side}${c.sets > 1 ? ` × ${c.sets}세트` : ''} · 직접 넘기기`;
   return `${fmtSec(c.hold)} 유지 × ${c.reps}회${side}${c.sets > 1 ? ` × ${c.sets}세트` : ''}`;
 }
 function exDuration(id) {
@@ -231,8 +242,9 @@ function renderHome() {
   $('#today-label').textContent = `${now.getMonth() + 1}월 ${now.getDate()}일 ${WEEK[now.getDay()]}요일`;
   const st = streak();
   $('#streak-badge').textContent = st ? `🔥 ${st}일 연속` : '🌱 오늘부터 시작';
+  $('#streak-badge').hidden = !on('log');
 
-  const entry = log[todayKey()];
+  const entry = on('log') ? log[todayKey()] : null;
   const active = EXERCISES.filter(e => settings.ex[e.id].on);
   const total = active.reduce((a, e) => a + exDuration(e.id), 0);
   const tc = $('#today-card');
@@ -240,16 +252,20 @@ function renderHome() {
     tc.innerHTML = `<div class="big-icon">✅</div><div><strong>오늘 운동을 마쳤어요!</strong><span class="muted small">${entry.time || ''} 완료 · 한 번 더 해도 좋아요</span></div>`;
     $('#start-btn').textContent = '▶ 다시 하기';
   } else {
-    tc.innerHTML = `<div class="big-icon">☀️</div><div><strong>좋은 아침입니다</strong><span class="muted small">${active.length}가지 운동 · 약 ${Math.ceil(total / 60)}분</span></div>`;
+    tc.innerHTML = `<div class="big-icon">☀️</div><div><strong>좋은 아침입니다</strong><span class="muted small">${active.length}가지 운동${on('timer') ? ` · 약 ${Math.ceil(total / 60)}분` : ' · 직접 넘기기'}</span></div>`;
     $('#start-btn').textContent = '▶ 운동 시작';
   }
   $('#start-btn').disabled = active.length === 0;
+  $('#start-note').textContent = [
+    on('timer') ? '시작하면 화면이 꺼지지 않고' : '한 번 할 때마다 직접 눌러 넘기고',
+    on('sound') ? '음성으로 안내해 드립니다.' : '화면으로 안내해 드립니다.',
+  ].join(', ');
 
   $('#ex-list').innerHTML = EXERCISES.map(e => `
     <li class="ex-item ${settings.ex[e.id].on ? '' : 'off'}">
       ${fig(e.id)}
       <div class="info"><strong>${e.name}</strong><span>${settings.ex[e.id].on ? summary(e.id) : '꺼짐 (설정에서 켜기)'}</span></div>
-      <button class="icon-btn" data-guide="${e.id}" aria-label="${e.name} 자세 설명">ⓘ</button>
+      ${on('guide') ? `<button class="icon-btn" data-guide="${e.id}" aria-label="${e.name} 자세 설명">ⓘ</button>` : ''}
     </li>`).join('');
 }
 
@@ -324,17 +340,24 @@ function stepperHTML(value, key) {
   return `<button type="button" data-d="-1" aria-label="줄이기">−</button><output>${value}${L.unit}</output><button type="button" data-d="1" aria-label="늘리기">+</button>`;
 }
 function renderSettings() {
+  $('#settings-features').innerHTML = FEATURES.map(f => `
+    <label class="row feat"><span><b>${f.label}</b><small class="muted">${f.desc}</small></span>
+      <input type="checkbox" class="switch" data-feature="${f.key}" ${on(f.key) ? 'checked' : ''}></label>`).join('');
+  $('#sound-card').hidden = !on('sound');
+  $('#sound-title').hidden = !on('sound');
+  $('#prep-card').hidden = !on('timer');
+  $('#prep-title').hidden = !on('timer');
   $('#settings-ex').innerHTML = EXERCISES.map(e => {
     const c = settings.ex[e.id];
-    const fields = ['hold', 'reps', 'sets', 'rest'].concat(c.sets > 1 ? ['setRest'] : []);
+    const fields = on('timer') ? ['hold', 'reps', 'sets', 'rest'].concat(c.sets > 1 ? ['setRest'] : []) : ['reps', 'sets'];
     return `<div class="card ex-set">
       <h3>${e.name}<input type="checkbox" class="switch" data-on="${e.id}" ${c.on ? 'checked' : ''} aria-label="${e.name} 켜기"></h3>
-      ${e.memo ? `<p class="hint small muted">✍️ ${e.memo}</p>` : ''}
+      ${e.memo && on('guide') ? `<p class="hint small muted">✍️ ${e.memo}</p>` : ''}
       ${e.alternate ? `<p class="hint small muted">좌우를 번갈아 1회씩 셉니다 (10회 = 한쪽 5회씩)</p>` : ''}
       ${fields.map(f => `<div class="row"><span>${LIMITS[f].label}</span>
         <div class="stepper" data-ex="${e.id}" data-key="${f}">${stepperHTML(c[f], f)}</div></div>`).join('')}
-      <div class="row" style="display:block"><span class="small muted">동영상 주소 (유인물 QR코드, 선택)</span>
-        <input type="url" data-video="${e.id}" placeholder="https://" value="${c.video ? c.video.replace(/"/g, '&quot;') : ''}"></div>
+      ${on('guide') ? `<div class="row" style="display:block"><span class="small muted">동영상 주소 (유인물 QR코드, 선택)</span>
+        <input type="url" data-video="${e.id}" placeholder="https://" value="${c.video ? c.video.replace(/"/g, '&quot;') : ''}"></div>` : ''}
     </div>`;
   }).join('');
   const ps = document.querySelector('[data-global="prep"]');
@@ -359,6 +382,11 @@ $('#view-settings').addEventListener('click', ev => {
 });
 $('#view-settings').addEventListener('change', ev => {
   const t = ev.target;
+  if (t.dataset.feature) {
+    settings.features[t.dataset.feature] = t.checked;
+    saveSettings(); applyFeatures(); renderAll();
+    return;
+  }
   if (t.dataset.on) settings.ex[t.dataset.on].on = t.checked;
   else if (t.dataset.video) settings.ex[t.dataset.video].video = /^https?:\/\//i.test(t.value.trim()) ? t.value.trim() : '';
   else if (t.id === 'opt-voice') settings.voice = t.checked;
@@ -370,13 +398,15 @@ $('#view-settings').addEventListener('change', ev => {
 });
 $('#test-voice').onclick = () => {
   const was = settings.voice; settings.voice = true;
+  speechSynthesis?.getVoices && pickVoice();
   say('좋은 아침입니다. 오늘도 코어 운동을 시작해 볼까요?');
   settings.voice = was; beep();
   if (!('speechSynthesis' in window)) alert('이 브라우저는 음성 안내를 지원하지 않습니다. 크롬이나 삼성 인터넷을 사용해 주세요.');
 };
 $('#reset-settings').onclick = () => {
   if (!confirm('운동 설정을 기본값으로 되돌릴까요? (기록은 그대로 남습니다)')) return;
-  settings = clone(DEFAULTS); saveSettings(); renderSettings(); renderHome();
+  const features = settings.features;
+  settings = clone(DEFAULTS); settings.features = features; saveSettings(); renderSettings(); renderHome();
 };
 $('#export-btn').onclick = () => {
   const blob = new Blob([JSON.stringify({ app: 'core-fit', settings, log }, null, 2)], { type: 'application/json' });
@@ -396,7 +426,7 @@ $('#import-file').onchange = async ev => {
     if (!confirm('백업을 불러오면 지금 기록과 설정이 백업 내용으로 바뀝니다. 계속할까요?')) return;
     store.set('cf.settings', data.settings || {}); settings = loadSettings();
     log = data.log || {}; saveLog();
-    renderAll(); alert('백업을 불러왔습니다.');
+    applyFeatures(); renderAll(); alert('백업을 불러왔습니다.');
   } catch { alert('올바른 백업 파일이 아닙니다.'); }
   ev.target.value = '';
 };
@@ -411,9 +441,9 @@ function buildSteps() {
     for (let s = 1; s <= c.sets; s++) {
       for (let r = 1; r <= c.reps; r++) {
         steps.push({ type: 'hold', ex: e.id, set: s, rep: r, dur: c.hold });
-        if (r < c.reps) steps.push({ type: 'rest', ex: e.id, set: s, rep: r, dur: c.rest });
+        if (r < c.reps && on('timer')) steps.push({ type: 'rest', ex: e.id, set: s, rep: r, dur: c.rest });
       }
-      if (s < c.sets) steps.push({ type: 'rest', ex: e.id, set: s, rep: c.reps, dur: c.setRest, setBreak: true });
+      if (s < c.sets && on('timer')) steps.push({ type: 'rest', ex: e.id, set: s, rep: c.reps, dur: c.setRest, setBreak: true });
     }
     steps.push({ type: 'exdone', ex: e.id, dur: 0 });
   }
@@ -453,6 +483,7 @@ function enterStep() {
 
   const W = $('#workout');
   W.dataset.phase = st.type;
+  W.classList.toggle('manual', !on('timer'));
   $('#wo-ex').textContent = e.name;
   $('#wo-figure').innerHTML = fig(st.ex);
   let phase, cue, count = '', speech;
@@ -460,7 +491,7 @@ function enterStep() {
     phase = '준비';
     cue = e.prepCue;
     count = summary(st.ex);
-    speech = `${e.name}. ${e.prepCue}`;
+    speech = on('guide') ? `${e.name}. ${e.prepCue}` : `${e.name}. 준비하세요`;
   } else if (st.type === 'hold') {
     phase = e.holdWord;
     cue = e.holdCue;
@@ -482,6 +513,13 @@ function enterStep() {
   }
   $('#wo-phase').textContent = phase;
   $('#wo-cue').textContent = cue;
+  $('#wo-cue').hidden = !on('guide');
+  if (!on('timer')) {
+    $('#wo-time').textContent = st.type === 'prep' ? '▶' : st.rep;
+    $('#wo-ring').style.strokeDashoffset = st.type === 'prep' ? '0'
+      : String(326.73 * (1 - st.rep / settings.ex[st.ex].reps));
+    $('#wo-pause').textContent = st.type === 'prep' ? '▶ 시작' : `✓ ${st.rep}회 완료`;
+  }
   $('#wo-count').textContent = count;
   say(speech);
   updateProgress();
@@ -489,7 +527,7 @@ function enterStep() {
 }
 
 function tick() {
-  if (!runner.active) return;
+  if (!runner.active || !on('timer')) return;
   const st = runner.steps[runner.i];
   if (!st) return;
   const remain = runner.paused ? runner.remainMs : Math.max(0, runner.endAt - performance.now());
@@ -524,6 +562,7 @@ function updateProgress() {
 
 function togglePause() {
   if (!runner.active) return;
+  if (!on('timer')) { beep(988, 120); runner.i++; return enterStep(); }
   if (runner.paused) {
     runner.paused = false;
     runner.endAt = performance.now() + runner.remainMs;
@@ -546,7 +585,7 @@ function jump(dir) {
     if (i < 0) i = 0;
   }
   runner.i = Math.max(0, i);
-  if (runner.paused) togglePause();
+  if (runner.paused && on('timer')) togglePause();
   enterStep();
 }
 
@@ -566,6 +605,14 @@ function finishWorkout(complete) {
   const now = new Date();
   const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
   const done = [...runner.completed];
+  if (!on('log')) {
+    if (complete) {
+      say('오늘 운동을 모두 마쳤습니다. 수고하셨습니다!');
+      $('#done-text').textContent = `${done.map(id => EX[id].name).join(', ')} 완료`;
+      $('#done').hidden = false;
+    }
+    return renderAll();
+  }
   if (complete) {
     log[k] = { status: 'done', time, items: done, minutes: Math.round((now - runner.startedAt) / 60000) };
     saveLog();
@@ -587,13 +634,14 @@ $('#wo-next').onclick = () => jump(1);
 $('#wo-prev').onclick = () => jump(-1);
 $('#wo-close').onclick = () => {
   const wasPaused = runner.paused;
-  if (!wasPaused) togglePause();
+  const manual = !on('timer');
+  if (!wasPaused && !manual) togglePause();
   if (confirm('운동을 끝낼까요? 끝까지 마친 운동은 기록에 남습니다.')) {
     speechSynthesis?.cancel();
     finishWorkout(false);
-  } else if (!wasPaused) togglePause();
+  } else if (!wasPaused && !manual) togglePause();
 };
-$('#done-ok').onclick = () => { $('#done').hidden = true; showView('log'); };
+$('#done-ok').onclick = () => { $('#done').hidden = true; showView(on('log') ? 'log' : 'home'); };
 
 /* ───────────────── 탭 이동 ───────────────── */
 function showView(name) {
@@ -604,7 +652,12 @@ function showView(name) {
 }
 document.querySelectorAll('.tabbar button').forEach(b => b.onclick = () => showView(b.dataset.view));
 
+function applyFeatures() {
+  document.querySelector('.tabbar [data-view="log"]').hidden = !on('log');
+  if (!on('log') && $('#view-log').classList.contains('active')) showView('home');
+}
 function renderAll() { renderHome(); renderLog(); renderSettings(); }
+applyFeatures();
 renderAll();
 
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

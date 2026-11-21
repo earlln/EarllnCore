@@ -29,7 +29,7 @@
       <ol class="ex-list" id="ex-list"></ol>
 
       <button class="btn primary big" id="start-btn">▶ 운동 시작</button>
-      <p class="muted small center">시작하면 화면이 꺼지지 않고, 음성으로 안내해 드립니다.</p>
+      <p class="muted small center" id="start-note"></p>
     </section>
 
     <!-- 기록 -->
@@ -55,17 +55,25 @@
     <!-- 설정 -->
     <section id="view-settings" class="view">
       <header class="top"><h1>설정</h1></header>
+      <h2 class="section-title">기능</h2>
+      <div class="card" id="settings-features"></div>
+
+      <h2 class="section-title">운동</h2>
       <div id="settings-ex"></div>
 
-      <h2 class="section-title">안내</h2>
-      <div class="card">
+      <h2 class="section-title" id="prep-title">타이머</h2>
+      <div class="card" id="prep-card">
+        <div class="row"><span>운동 사이 준비 시간</span><div class="stepper" data-global="prep"></div></div>
+      </div>
+
+      <h2 class="section-title" id="sound-title">음성/소리</h2>
+      <div class="card" id="sound-card">
         <label class="row"><span>음성 안내</span><input type="checkbox" id="opt-voice" class="switch"></label>
         <label class="row"><span>마지막 3초 세기 (음성)</span><input type="checkbox" id="opt-count" class="switch"></label>
         <label class="row"><span>효과음 (삐 소리)</span><input type="checkbox" id="opt-beep" class="switch"></label>
         <div class="row"><span>음성 속도</span>
           <select id="opt-rate"><option value="0.8">느리게</option><option value="1">보통</option><option value="1.2">빠르게</option></select>
         </div>
-        <div class="row"><span>운동 사이 준비 시간</span><div class="stepper" data-global="prep"></div></div>
         <button class="btn ghost" id="test-voice">🔊 음성 테스트</button>
       </div>
 

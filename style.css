@@ -164,3 +164,9 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 .memo { background: color-mix(in srgb, var(--partial) 15%, transparent); border-radius: 12px; padding: 10px 12px; font-size: 0.92rem; }
 .caution { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 12px; padding: 10px 12px; font-size: 0.9rem; margin-top: 14px; }
 .guide-inner .btn { width: 100%; margin-top: 12px; text-decoration: none; display: block; text-align: center; }
+
+[hidden] { display: none !important; }
+.feat span { display: flex; flex-direction: column; }
+.feat small { font-size: 0.8rem; line-height: 1.4; margin-top: 2px; }
+.row > span { min-width: 0; }
+.workout.manual .ring-num { font-size: 4.5rem; }

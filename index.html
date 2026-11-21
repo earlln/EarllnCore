@@ -66,6 +66,18 @@
         <div class="row"><span>운동 사이 준비 시간</span><div class="stepper" data-global="prep"></div></div>
       </div>
 
+      <h2 class="section-title" id="music-title">배경음악</h2>
+      <div class="card" id="music-card">
+        <div class="row"><span>음악 종류</span>
+          <select id="opt-music-style"><option value="pad">잔잔한 화음</option><option value="musicbox">오르골</option><option value="waves">파도 소리</option></select>
+        </div>
+        <div class="row"><span>음량</span>
+          <div class="vol"><input type="range" id="opt-music-vol" min="5" max="100" step="5"><output id="music-vol-text"></output></div>
+        </div>
+        <button class="btn ghost" id="music-preview">▶ 미리 듣기</button>
+        <p class="small muted">음원 파일 없이 앱이 직접 만드는 음악이라 인터넷 없이도 나옵니다.</p>
+      </div>
+
       <h2 class="section-title" id="sound-title">음성/소리</h2>
       <div class="card" id="sound-card">
         <label class="row"><span>음성 안내</span><input type="checkbox" id="opt-voice" class="switch"></label>

@@ -107,10 +107,13 @@ const FEATURES = [
   { key: 'sound', label: '음성/소리 안내', desc: '끄면 음성과 효과음 없이 화면으로만 안내합니다.' },
   { key: 'log', label: '매일 기록/달력', desc: '끄면 기록 탭과 연속 일수가 숨겨지고 새 기록을 저장하지 않습니다. (기존 기록은 보관)' },
   { key: 'guide', label: '자세 설명/주의사항', desc: '끄면 ⓘ 설명 버튼과 운동 중 자세 안내 문구가 숨겨집니다.' },
+  { key: 'music', label: '배경음악', desc: '운동하는 동안 잔잔한 음악을 깔아줍니다. 음성 안내가 나올 때는 자동으로 작아집니다.' },
 ];
 
 const DEFAULTS = {
-  features: { timer: true, sound: true, log: true, guide: true },
+  features: { timer: true, sound: true, log: true, guide: true, music: true },
+  musicStyle: 'pad',
+  musicVol: 40,
   prep: 10,
   voice: true,
   count: true,
@@ -173,11 +176,15 @@ function streak() {
 
 /* ───────────────── 소리 & 음성 ───────────────── */
 let audioCtx;
+function getCtx() {
+  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
 function beep(freq = 880, ms = 120, vol = 0.25) {
   if (!on('sound') || !settings.beep) return;
   try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    getCtx();
     const o = audioCtx.createOscillator(), g = audioCtx.createGain();
     o.frequency.value = freq; o.type = 'sine';
     g.gain.setValueAtTime(vol, audioCtx.currentTime);
@@ -186,6 +193,135 @@ function beep(freq = 880, ms = 120, vol = 0.25) {
     o.start(); o.stop(audioCtx.currentTime + ms / 1000);
   } catch { /* 오디오 미지원 */ }
 }
+
+/* ───────────────── 배경음악 (코드로 만드는 음악, 음원 파일 없음) ───────────────── */
+const MUSIC_STYLES = { pad: '잔잔한 화음', musicbox: '오르골', waves: '파도 소리' };
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+const PAD_CHORDS = [[48, 55, 60, 64, 67], [45, 52, 57, 60, 64], [41, 48, 53, 57, 64], [43, 50, 55, 59, 62]];
+const PENTA = [72, 74, 76, 79, 81, 84, 86, 88];
+
+const music = {
+  playing: false, timer: null, nodes: null, next: 0, step: 0, waveNext: 0, style: null,
+
+  start() {
+    if (this.playing) return;
+    let ctx;
+    try { ctx = getCtx(); } catch { return; }
+    const master = ctx.createGain();
+    master.gain.value = 0;
+    const comp = ctx.createDynamicsCompressor(); // 음량을 올려도 소리가 깨지지 않게
+    comp.threshold.value = -18; comp.ratio.value = 4;
+    master.connect(comp).connect(ctx.destination);
+    // 간단한 울림(딜레이 피드백)
+    const bus = ctx.createGain();
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200;
+    const delay = ctx.createDelay(2); delay.delayTime.value = 0.42;
+    const fb = ctx.createGain(); fb.gain.value = 0.38;
+    const wet = ctx.createGain(); wet.gain.value = 0.35;
+    bus.connect(lp).connect(master);
+    lp.connect(delay); delay.connect(fb).connect(delay); delay.connect(wet).connect(master);
+    this.nodes = { ctx, master, bus };
+    this.style = settings.musicStyle;
+    this.next = this.waveNext = ctx.currentTime + 0.1;
+    this.step = 0;
+    if (this.style === 'waves') this.startNoise();
+    this.playing = true;
+    this.tick();
+    this.timer = setInterval(() => this.tick(), 250);
+  },
+
+  stop(fade = 1.2) {
+    if (!this.playing) return;
+    this.playing = false;
+    clearInterval(this.timer);
+    const { ctx, master } = this.nodes;
+    master.gain.cancelScheduledValues(ctx.currentTime);
+    master.gain.setTargetAtTime(0, ctx.currentTime, fade / 4);
+    const nodes = this.nodes;
+    setTimeout(() => { try { nodes.noise?.stop(); nodes.master.disconnect(); } catch { /* 이미 정리됨 */ } }, fade * 1000 + 300);
+    this.nodes = null;
+  },
+
+  restart() { if (this.playing) { this.stop(0.4); setTimeout(() => this.start(), 450); } },
+
+  level() {
+    const base = (settings.musicVol / 100) * 0.9;
+    const speaking = 'speechSynthesis' in window && speechSynthesis.speaking;
+    return speaking ? base * 0.3 : base;
+  },
+
+  tick() {
+    if (!this.playing) return;
+    const { ctx, master } = this.nodes;
+    master.gain.setTargetAtTime(this.level(), ctx.currentTime, 0.35);
+    const ahead = ctx.currentTime + 1.5;
+    while (this.next < ahead) this[this.style === 'musicbox' ? 'boxNote' : this.style === 'waves' ? 'drone' : 'chord']();
+    if (this.style === 'waves') while (this.waveNext < ahead) this.wave();
+  },
+
+  tone(freq, t, dur, { type = 'sine', vol = 0.1, attack = 2, release = 3 } = {}) {
+    const { ctx, bus } = this.nodes;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + attack);
+    g.gain.setValueAtTime(vol, t + Math.max(attack, dur - release));
+    g.gain.linearRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(bus);
+    o.start(t); o.stop(t + dur + 0.1);
+  },
+
+  chord() { // 잔잔한 화음: 8초마다 천천히 바뀌는 패드
+    const t = this.next, notes = PAD_CHORDS[this.step++ % PAD_CHORDS.length];
+    notes.forEach((m, i) => {
+      this.tone(mtof(m), t, 10, { type: i ? 'sine' : 'triangle', vol: 0.05, attack: 3, release: 4 });
+      this.tone(mtof(m) * 1.003, t, 10, { vol: 0.03, attack: 3.5, release: 4 });
+    });
+    this.next += 8;
+  },
+
+  boxNote() { // 오르골: 5음계 음을 여유 있게 하나씩
+    const t = this.next;
+    if (this.step % 16 === 0) {
+      const root = PAD_CHORDS[(this.step / 16) % PAD_CHORDS.length][0];
+      this.tone(mtof(root), t, 14, { vol: 0.05, attack: 3, release: 5 });
+      this.tone(mtof(root + 7), t, 14, { vol: 0.03, attack: 3, release: 5 });
+    }
+    const m = PENTA[Math.floor(Math.random() * PENTA.length)];
+    this.tone(mtof(m), t, 2.6, { vol: 0.09, attack: 0.01, release: 2.55 });
+    this.tone(mtof(m) * 2, t, 1.2, { vol: 0.02, attack: 0.01, release: 1.15 });
+    this.step++;
+    this.next += [0.75, 0.75, 1.5, 1.5, 2.25][Math.floor(Math.random() * 5)];
+  },
+
+  drone() { // 파도 소리 아래에 깔리는 낮은 음
+    const t = this.next, root = PAD_CHORDS[this.step++ % PAD_CHORDS.length][0];
+    this.tone(mtof(root), t, 18, { vol: 0.045, attack: 5, release: 6 });
+    this.tone(mtof(root + 12), t, 18, { vol: 0.02, attack: 6, release: 6 });
+    this.next += 16;
+  },
+
+  startNoise() {
+    const { ctx, bus } = this.nodes;
+    const len = ctx.sampleRate * 2, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.5; }
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900;
+    const g = ctx.createGain(); g.gain.value = 0.05;
+    src.connect(lp).connect(g).connect(bus);
+    src.start();
+    Object.assign(this.nodes, { noise: src, waveGain: g });
+  },
+
+  wave() { // 6~10초 주기로 밀려왔다 빠지는 파도
+    const g = this.nodes.waveGain.gain, t = this.waveNext, d = 6 + Math.random() * 4;
+    g.setValueAtTime(0.05, t);
+    g.linearRampToValueAtTime(0.4 + Math.random() * 0.25, t + d * 0.4);
+    g.linearRampToValueAtTime(0.05, t + d);
+    this.waveNext += d;
+  },
+};
 
 let koVoice = null;
 function pickVoice() {
@@ -346,6 +482,11 @@ function renderSettings() {
   $('#sound-card').hidden = !on('sound');
   $('#sound-title').hidden = !on('sound');
   $('#prep-card').hidden = !on('timer');
+  $('#music-card').hidden = !on('music');
+  $('#music-title').hidden = !on('music');
+  $('#opt-music-style').value = settings.musicStyle;
+  $('#opt-music-vol').value = settings.musicVol;
+  $('#music-vol-text').textContent = `${settings.musicVol}%`;
   $('#prep-title').hidden = !on('timer');
   $('#settings-ex').innerHTML = EXERCISES.map(e => {
     const c = settings.ex[e.id];
@@ -384,6 +525,7 @@ $('#view-settings').addEventListener('change', ev => {
   const t = ev.target;
   if (t.dataset.feature) {
     settings.features[t.dataset.feature] = t.checked;
+    if (t.dataset.feature === 'music' && !t.checked) stopPreview();
     saveSettings(); applyFeatures(); renderAll();
     return;
   }
@@ -393,9 +535,29 @@ $('#view-settings').addEventListener('change', ev => {
   else if (t.id === 'opt-count') settings.count = t.checked;
   else if (t.id === 'opt-beep') settings.beep = t.checked;
   else if (t.id === 'opt-rate') settings.rate = Number(t.value);
+  else if (t.id === 'opt-music-style') { settings.musicStyle = t.value; music.restart(); }
+  else if (t.id === 'opt-music-vol') settings.musicVol = Number(t.value);
   else return;
   saveSettings(); renderHome();
 });
+$('#opt-music-vol').addEventListener('input', ev => {
+  settings.musicVol = Number(ev.target.value);
+  $('#music-vol-text').textContent = `${settings.musicVol}%`;
+});
+let previewTimer = null;
+function stopPreview() {
+  if (!previewTimer) return;
+  clearTimeout(previewTimer); previewTimer = null;
+  music.stop();
+  $('#music-preview').textContent = '▶ 미리 듣기';
+}
+$('#music-preview').onclick = () => {
+  if (previewTimer) return stopPreview();
+  music.start();
+  $('#music-preview').textContent = '■ 멈추기';
+  previewTimer = setTimeout(stopPreview, 20000);
+};
+
 $('#test-voice').onclick = () => {
   const was = settings.voice; settings.voice = true;
   speechSynthesis?.getVoices && pickVoice();
@@ -464,6 +626,8 @@ function startWorkout() {
   document.body.style.overflow = 'hidden';
   keepAwake(true);
   beep(660, 80, 0.01); // 오디오 잠금 해제
+  if (previewTimer) { clearTimeout(previewTimer); previewTimer = null; $('#music-preview').textContent = '▶ 미리 듣기'; music.stop(0.3); }
+  if (on('music')) setTimeout(() => music.start(), previewTimer === null ? 400 : 0);
   enterStep();
   runner.timer = setInterval(tick, 100);
 }
@@ -568,12 +732,14 @@ function togglePause() {
     runner.endAt = performance.now() + runner.remainMs;
     $('#wo-pause').textContent = '⏸ 일시정지';
     $('#workout').classList.remove('paused');
+    if (on('music')) music.start();
     say('다시 시작합니다');
   } else {
     runner.paused = true;
     runner.remainMs = Math.max(0, runner.endAt - performance.now());
     $('#wo-pause').textContent = '▶ 계속하기';
     $('#workout').classList.add('paused');
+    music.stop(0.6);
     say('일시정지');
   }
 }
@@ -591,6 +757,7 @@ function jump(dir) {
 
 function stopRunner() {
   runner.active = false;
+  music.stop(2);
   clearInterval(runner.timer);
   keepAwake(false);
   $('#workout').hidden = true;
@@ -645,6 +812,7 @@ $('#done-ok').onclick = () => { $('#done').hidden = true; showView(on('log') ? '
 
 /* ───────────────── 탭 이동 ───────────────── */
 function showView(name) {
+  if (name !== 'settings') stopPreview();
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === `view-${name}`));
   document.querySelectorAll('.tabbar button').forEach(b => b.classList.toggle('active', b.dataset.view === name));
   if (name === 'log') { calMonth = new Date(); calMonth.setDate(1); renderLog(); }

@@ -170,3 +170,6 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 .feat small { font-size: 0.8rem; line-height: 1.4; margin-top: 2px; }
 .row > span { min-width: 0; }
 .workout.manual .ring-num { font-size: 4.5rem; }
+.vol { display: flex; align-items: center; gap: 8px; }
+.vol input { width: 140px; accent-color: var(--primary); }
+.vol output { min-width: 40px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }

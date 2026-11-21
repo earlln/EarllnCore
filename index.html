@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2f6fd6">
+  <meta name="description" content="연세힐 추천 코어 운동(맥켄지·플랭크·버드독)을 매일 아침 도와주는 운동 도우미">
+  <title>아침 코어 운동</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="app">
+    <!-- 홈 -->
+    <section id="view-home" class="view active">
+      <header class="top">
+        <div>
+          <p class="muted" id="today-label"></p>
+          <h1>아침 코어 운동</h1>
+        </div>
+        <div class="streak" id="streak-badge" title="연속 운동 일수"></div>
+      </header>
+
+      <div class="card today-card" id="today-card"></div>
+
+      <h2 class="section-title">오늘의 순서</h2>
+      <ol class="ex-list" id="ex-list"></ol>
+
+      <button class="btn primary big" id="start-btn">▶ 운동 시작</button>
+      <p class="muted small center" id="start-note"></p>
+    </section>
+
+    <!-- 기록 -->
+    <section id="view-log" class="view">
+      <header class="top"><h1>운동 기록</h1></header>
+      <div class="stats" id="stats"></div>
+      <div class="card">
+        <div class="cal-head">
+          <button class="icon-btn" id="cal-prev" aria-label="이전 달">‹</button>
+          <strong id="cal-title"></strong>
+          <button class="icon-btn" id="cal-next" aria-label="다음 달">›</button>
+        </div>
+        <div class="cal-grid cal-week"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="legend">
+          <span><i class="dot done"></i>완료</span>
+          <span><i class="dot partial"></i>일부</span>
+        </div>
+      </div>
+      <p class="muted small center">날짜를 누르면 앱 없이 한 날도 직접 표시하거나 지울 수 있습니다.</p>
+    </section>
+
+    <!-- 설정 -->
+    <section id="view-settings" class="view">
+      <header class="top"><h1>설정</h1></header>
+      <h2 class="section-title">기능</h2>
+      <div class="card" id="settings-features"></div>
+
+      <h2 class="section-title">운동</h2>
+      <div id="settings-ex"></div>
+
+      <h2 class="section-title" id="prep-title">타이머</h2>
+      <div class="card" id="prep-card">
+        <div class="row"><span>운동 사이 준비 시간</span><div class="stepper" data-global="prep"></div></div>
+      </div>
+
+      <h2 class="section-title" id="sound-title">음성/소리</h2>
+      <div class="card" id="sound-card">
+        <label class="row"><span>음성 안내</span><input type="checkbox" id="opt-voice" class="switch"></label>
+        <label class="row"><span>마지막 3초 세기 (음성)</span><input type="checkbox" id="opt-count" class="switch"></label>
+        <label class="row"><span>효과음 (삐 소리)</span><input type="checkbox" id="opt-beep" class="switch"></label>
+        <div class="row"><span>음성 속도</span>
+          <select id="opt-rate"><option value="0.8">느리게</option><option value="1">보통</option><option value="1.2">빠르게</option></select>
+        </div>
+        <button class="btn ghost" id="test-voice">🔊 음성 테스트</button>
+      </div>
+
+      <h2 class="section-title">데이터</h2>
+      <div class="card">
+        <p class="small muted">기록과 설정은 이 휴대폰의 브라우저에만 저장됩니다. 브라우저 데이터를 지우면 사라지니 가끔 백업해 두세요.</p>
+        <div class="btn-row">
+          <button class="btn ghost" id="export-btn">백업 저장</button>
+          <button class="btn ghost" id="import-btn">백업 불러오기</button>
+          <input type="file" id="import-file" accept="application/json" hidden>
+        </div>
+        <button class="btn ghost danger" id="reset-settings">운동 설정 기본값으로</button>
+      </div>
+      <p class="muted small center">통증·저림이 심해지면 운동을 멈추고 담당 의료진과 상의하세요.<br>앱의 기본값보다 의료진의 지시를 우선해 주세요.</p>
+    </section>
+
+    <nav class="tabbar">
+      <button data-view="home" class="active"><span>🏠</span>홈</button>
+      <button data-view="log"><span>📅</span>기록</button>
+      <button data-view="settings"><span>⚙️</span>설정</button>
+    </nav>
+  </main>
+
+  <!-- 운동 진행 화면 -->
+  <section id="workout" class="workout" hidden>
+    <div class="wo-top">
+      <button class="icon-btn" id="wo-close" aria-label="운동 끝내기">✕</button>
+      <div class="wo-progress"><div id="wo-progress-bar"></div></div>
+      <span class="small" id="wo-progress-text"></span>
+    </div>
+    <div class="wo-body">
+      <p class="wo-ex" id="wo-ex"></p>
+      <div class="wo-figure" id="wo-figure"></div>
+      <p class="wo-phase" id="wo-phase"></p>
+      <div class="ring-wrap">
+        <svg viewBox="0 0 120 120" class="ring">
+          <circle cx="60" cy="60" r="52" class="ring-bg"/>
+          <circle cx="60" cy="60" r="52" class="ring-fg" id="wo-ring"/>
+        </svg>
+        <div class="ring-num" id="wo-time"></div>
+      </div>
+      <p class="wo-count" id="wo-count"></p>
+      <p class="wo-cue" id="wo-cue"></p>
+    </div>
+    <div class="wo-controls">
+      <button class="btn ghost" id="wo-prev">⏮ 이전</button>
+      <button class="btn primary" id="wo-pause">⏸ 일시정지</button>
+      <button class="btn ghost" id="wo-next">다음 ⏭</button>
+    </div>
+  </section>
+
+  <!-- 완료 화면 -->
+  <section id="done" class="workout done-screen" hidden>
+    <div class="wo-body">
+      <div class="done-emoji">🎉</div>
+      <h1>오늘 운동 완료!</h1>
+      <p id="done-text" class="muted"></p>
+      <button class="btn primary big" id="done-ok">확인</button>
+    </div>
+  </section>
+
+  <!-- 자세 설명 -->
+  <dialog id="guide">
+    <div class="guide-inner">
+      <button class="icon-btn guide-close" id="guide-close" aria-label="닫기">✕</button>
+      <div id="guide-body"></div>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

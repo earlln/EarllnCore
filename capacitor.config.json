@@ -1,0 +1,14 @@
+{
+  "appId": "io.github.earlln.earllnfit",
+  "appName": "아침 코어 운동",
+  "webDir": "android-web",
+  "android": {
+    "backgroundColor": "#f4f6fa"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_notify",
+      "iconColor": "#2f6fd6"
+    }
+  }
+}

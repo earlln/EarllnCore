@@ -1,0 +1,66 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace = "io.github.earlln.earllnfit"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "io.github.earlln.earllnfit"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        // GitHub Actions 빌드 번호로 버전이 자동으로 올라가서, 새 APK를 덮어 설치할 수 있습니다
+        versionCode((System.getenv("APP_VERSION_CODE") ?: "1") as Integer)
+        versionName "1.0." + (System.getenv("APP_VERSION_CODE") ?: "0")
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        release {
+            // 비밀값(GitHub Secrets)이 있으면 그 키로, 없으면 저장소의 개인 설치용 키로 서명합니다
+            def ksPath = System.getenv("ANDROID_KEYSTORE_FILE")
+            storeFile ksPath ? file(ksPath) : rootProject.file("keystore/sideload.jks")
+            storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: "corefit-sideload"
+            keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: "corefit"
+            keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: "corefit-sideload"
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

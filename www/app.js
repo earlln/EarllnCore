@@ -1,6 +1,6 @@
 'use strict';
 
-/* ───────────────── 운동 정의 (병원 유인물 기준) ───────────────── */
+/* ───────────────── 운동 그림 ───────────────── */
 const FIG = {
   mckenzie: `<svg viewBox="0 0 200 100" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <line class="floor" x1="8" y1="88" x2="192" y2="88" stroke-width="3"/>
@@ -26,91 +26,16 @@ const FIG = {
   </svg>`,
 };
 
+/* 운동 순서와 동작 특성 (문구는 i18n.js) */
 const EXERCISES = [
-  {
-    id: 'mckenzie',
-    name: '맥켄지 신전 운동',
-    en: 'McKenzie Exercise',
-    holdWord: '유지',
-    restWord: '내리고 쉬기',
-    prepCue: '엎드린 자세에서 팔꿈치를 어깨 바로 밑에 두세요.',
-    holdSay: '천천히 상체를 올리세요',
-    restSay: '천천히 내리세요',
-    holdCue: '팔꿈치로 지탱하며 상체를 들어 올린 채 유지합니다. 골반은 바닥에 붙이고 허리 힘은 빼세요.',
-    restCue: '천천히 내려와 잠시 쉽니다.',
-    steps: [
-      '엎드린 자세에서 팔꿈치를 어깨 바로 밑에 위치시킵니다.',
-      '팔꿈치를 지탱하면서 상체를 들어 올립니다.',
-      '이 자세를 몇 초간 유지한 후 다시 내려옵니다.',
-    ],
-    memo: '10회 반복 → 1세트 · 5~10초 유지 · 천천히(slow)',
-    tips: [
-      '골반과 다리는 바닥에 붙인 채로 둡니다.',
-      '허리와 엉덩이에 힘을 빼고, 팔로만 상체를 받칩니다.',
-      '숨을 참지 말고 편하게 내쉬세요.',
-      '올라갈 때도, 내려올 때도 천천히 움직입니다.',
-    ],
-  },
-  {
-    id: 'plank',
-    name: '플랭크',
-    en: 'Plank Exercise',
-    holdWord: '버티기',
-    restWord: '휴식',
-    prepCue: '팔꿈치를 어깨 바로 아래 90도로 대고, 발은 엉덩이 너비로 벌리세요.',
-    holdSay: '몸을 일직선으로, 버티세요',
-    restSay: '내려놓고 쉬세요',
-    holdCue: '머리부터 발뒤꿈치까지 일직선. 엉덩이가 처지거나 들리지 않게 배에 힘을 주세요.',
-    restCue: '무릎을 내려놓고 호흡을 고르세요.',
-    steps: [
-      '팔꿈치와 팔을 어깨 바로 아래에 위치시키고, 팔꿈치를 90도 굽혀 바닥에 대고 몸을 지지합니다.',
-      '발끝은 바닥에 대고, 발은 엉덩이 너비로 벌립니다.',
-      '처음에는 10초에서 30초 정도 유지하고 점점 시간을 늘릴 수 있습니다.',
-    ],
-    memo: '1분(1min) plank · 4회 — 앱 기본값은 20초부터 시작',
-    tips: [
-      '머리·등·엉덩이·발목이 한 줄이 되게 합니다.',
-      '엉덩이가 아래로 처지면 허리에 부담이 갑니다.',
-      '배꼽을 등 쪽으로 당기는 느낌으로 복부에 힘을 줍니다.',
-      '숨을 참지 말고 짧게 계속 쉬세요.',
-    ],
-  },
-  {
-    id: 'birddog',
-    name: '버드 독',
-    en: 'Bird-dog Exercise',
-    holdWord: '뻗고 멈추기',
-    restWord: '제자리',
-    prepCue: '네발 기기 자세로 엎드려 복부에 힘을 주세요.',
-    holdSay: '',
-    restSay: '제자리로',
-    holdCue: '팔과 다리를 몸통 높이까지 뻗고 멈춥니다. 몸이 흔들리지 않게 중심을 잡으세요.',
-    restCue: '팔과 다리를 제자리로 내립니다.',
-    alternate: true,
-    steps: [
-      '엎드려 자세를 취한 후 복부에 힘을 줍니다.',
-      '왼팔을 앞으로 들고 오른쪽 다리를 뻗어 올려 멈춥니다.',
-      '반대쪽 팔과 다리를 들어 반복 운동을 하면서 몸이 너무 흔들리지 않게 중심을 잡아줍니다.',
-    ],
-    memo: '',
-    tips: [
-      '팔과 다리는 몸통 높이까지만 들어 허리가 꺾이지 않게 합니다.',
-      '골반이 한쪽으로 기울지 않게 수평을 유지합니다.',
-      '등 위에 물컵이 있다고 생각하고 흔들림 없이 움직입니다.',
-    ],
-  },
+  { id: 'mckenzie' },
+  { id: 'plank' },
+  { id: 'birddog', alternate: true },
 ];
-const EX = Object.fromEntries(EXERCISES.map(e => [e.id, e]));
-
-const FEATURES = [
-  { key: 'timer', label: '순서 가이드 + 타이머', desc: '끄면 자동으로 넘어가지 않고, 한 번 할 때마다 직접 눌러 넘깁니다.' },
-  { key: 'sound', label: '음성/소리 안내', desc: '끄면 음성과 효과음 없이 화면으로만 안내합니다.' },
-  { key: 'log', label: '매일 기록/달력', desc: '끄면 기록 탭과 연속 일수가 숨겨지고 새 기록을 저장하지 않습니다. (기존 기록은 보관)' },
-  { key: 'guide', label: '자세 설명/주의사항', desc: '끄면 ⓘ 설명 버튼과 운동 중 자세 안내 문구가 숨겨집니다.' },
-  { key: 'music', label: '배경음악', desc: '운동하는 동안 잔잔한 음악을 깔아줍니다. 음성 안내가 나올 때는 자동으로 작아집니다.' },
-];
+const FEATURE_KEYS = ['timer', 'sound', 'log', 'guide', 'music'];
 
 const DEFAULTS = {
+  lang: (navigator.language || 'ko').toLowerCase().startsWith('ko') ? 'ko' : 'en',
   features: { timer: true, sound: true, log: true, guide: true, music: true },
   musicStyle: 'pad',
   musicVol: 40,
@@ -119,6 +44,7 @@ const DEFAULTS = {
   count: true,
   beep: true,
   rate: 1,
+  reminder: { on: false, time: '07:00' },
   ex: {
     mckenzie: { on: true, hold: 7, reps: 10, sets: 1, rest: 3, setRest: 30, video: '' },
     plank:    { on: true, hold: 20, reps: 4, sets: 1, rest: 30, setRest: 30, video: '' },
@@ -127,12 +53,12 @@ const DEFAULTS = {
 };
 
 const LIMITS = {
-  hold:    { min: 3, max: 180, step: 1, unit: '초', label: '유지 시간' },
-  reps:    { min: 1, max: 30, step: 1, unit: '회', label: '반복 횟수' },
-  sets:    { min: 1, max: 5, step: 1, unit: '세트', label: '세트 수' },
-  rest:    { min: 2, max: 120, step: 1, unit: '초', label: '반복 사이 휴식' },
-  setRest: { min: 5, max: 180, step: 5, unit: '초', label: '세트 사이 휴식' },
-  prep:    { min: 3, max: 30, step: 1, unit: '초' },
+  hold:    { min: 3, max: 180, step: 1, unit: 'unit_s' },
+  reps:    { min: 1, max: 30, step: 1, unit: 'unit_reps' },
+  sets:    { min: 1, max: 5, step: 1, unit: 'unit_sets' },
+  rest:    { min: 2, max: 120, step: 1, unit: 'unit_s' },
+  setRest: { min: 5, max: 180, step: 5, unit: 'unit_s' },
+  prep:    { min: 3, max: 30, step: 1, unit: 'unit_s' },
 };
 
 /* ───────────────── 저장소 ───────────────── */
@@ -151,6 +77,8 @@ function loadSettings() {
   const saved = store.get('cf.settings', {});
   const s = { ...clone(DEFAULTS), ...saved, ex: clone(DEFAULTS.ex) };
   s.features = { ...DEFAULTS.features, ...(saved.features || {}) };
+  s.reminder = { ...DEFAULTS.reminder, ...(saved.reminder || {}) };
+  if (!I18N[s.lang]) s.lang = DEFAULTS.lang;
   for (const id of Object.keys(DEFAULTS.ex)) s.ex[id] = { ...DEFAULTS.ex[id], ...(saved.ex?.[id] || {}) };
   return s;
 }
@@ -160,11 +88,46 @@ const saveSettings = () => store.set('cf.settings', settings);
 const saveLog = () => store.set('cf.log', log);
 const on = key => settings.features[key];
 
+/* ───────────────── 언어 ───────────────── */
+function t(key, params) {
+  let s = I18N[settings.lang][key] ?? I18N.ko[key] ?? key;
+  if (params && typeof s === 'string') s = s.replace(/\{(\w+)\}/g, (_, k) => params[k] ?? '');
+  return s;
+}
+const tx = id => EX_TEXT[settings.lang][id];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmtDate = (d, opts) => d.toLocaleDateString(t('locale'), opts);
+
+function applyStaticText() {
+  document.documentElement.lang = settings.lang;
+  document.title = t('app_title');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+  $('#cal-week').innerHTML = t('week').map(w => `<span>${w}</span>`).join('');
+}
+
+/* ───────────────── 안드로이드 앱(Capacitor) 연결 ───────────────── */
+const native = (() => {
+  const C = window.Capacitor;
+  const reg = window.capacitorExports?.registerPlugin || C?.registerPlugin;
+  if (!C?.isNativePlatform?.() || !reg) return { isNative: false };
+  return {
+    isNative: true,
+    TTS: reg('TextToSpeech'),
+    KeepAwake: reg('KeepAwake'),
+    Notif: reg('LocalNotifications'),
+    Files: reg('Filesystem'),
+    Share: reg('Share'),
+  };
+})();
+if (native.isNative) document.documentElement.classList.add('native');
+
 /* ───────────────── 날짜 도우미 ───────────────── */
 const pad = n => String(n).padStart(2, '0');
 const dateKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const todayKey = () => dateKey(new Date());
-const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
 
 function streak() {
   const d = new Date();
@@ -174,7 +137,7 @@ function streak() {
   return n;
 }
 
-/* ───────────────── 소리 & 음성 ───────────────── */
+/* ───────────────── 소리 ───────────────── */
 let audioCtx;
 function getCtx() {
   audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
@@ -195,7 +158,6 @@ function beep(freq = 880, ms = 120, vol = 0.25) {
 }
 
 /* ───────────────── 배경음악 (코드로 만드는 음악, 음원 파일 없음) ───────────────── */
-const MUSIC_STYLES = { pad: '잔잔한 화음', musicbox: '오르골', waves: '파도 소리' };
 const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
 const PAD_CHORDS = [[48, 55, 60, 64, 67], [45, 52, 57, 60, 64], [41, 48, 53, 57, 64], [43, 50, 55, 59, 62]];
 const PENTA = [72, 74, 76, 79, 81, 84, 86, 88];
@@ -246,8 +208,7 @@ const music = {
 
   level() {
     const base = (settings.musicVol / 100) * 0.9;
-    const speaking = 'speechSynthesis' in window && speechSynthesis.speaking;
-    return speaking ? base * 0.3 : base;
+    return isSpeaking() ? base * 0.3 : base; // 음성 안내 중에는 작게
   },
 
   tick() {
@@ -323,61 +284,121 @@ const music = {
   },
 };
 
-let koVoice = null;
+/* ───────────────── 음성 안내 ───────────────── */
+let webVoice = null;
+let nativeSpeaking = false;
 function pickVoice() {
   const voices = window.speechSynthesis?.getVoices() || [];
-  koVoice = voices.find(v => v.lang === 'ko-KR') || voices.find(v => v.lang?.startsWith('ko')) || null;
+  const loc = t('locale'), base = loc.slice(0, 2);
+  webVoice = voices.find(v => v.lang === loc) || voices.find(v => v.lang?.replace('_', '-') === loc)
+    || voices.find(v => v.lang?.startsWith(base)) || null;
 }
-if ('speechSynthesis' in window) {
+if (!native.isNative && 'speechSynthesis' in window) {
   pickVoice();
   speechSynthesis.onvoiceschanged = pickVoice;
 }
-function say(text, { interrupt = true } = {}) {
-  if (!on('sound') || !settings.voice || !text || !('speechSynthesis' in window)) return;
-  if (interrupt) speechSynthesis.cancel();
+const canSpeak = () => native.isNative || 'speechSynthesis' in window;
+function isSpeaking() {
+  return native.isNative ? nativeSpeaking : ('speechSynthesis' in window && speechSynthesis.speaking);
+}
+function stopSpeech() {
+  if (native.isNative) { nativeSpeaking = false; native.TTS.stop().catch(() => {}); }
+  else if ('speechSynthesis' in window) speechSynthesis.cancel();
+}
+function say(text, { force = false } = {}) {
+  if (!text || !canSpeak()) return;
+  if (!force && (!on('sound') || !settings.voice)) return;
+  const rate = Number(settings.rate) || 1;
+  if (native.isNative) {
+    nativeSpeaking = true;
+    // 새 문장이 오면 이전 문장을 끊고 바로 말합니다 (기본 Flush 방식)
+    native.TTS.speak({ text, lang: t('locale'), rate, pitch: 1, volume: 1 })
+      .catch(() => {}).finally(() => { nativeSpeaking = false; });
+    return;
+  }
+  speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'ko-KR';
-  if (koVoice) u.voice = koVoice;
-  u.rate = Number(settings.rate) || 1;
+  u.lang = t('locale');
+  if (webVoice) u.voice = webVoice;
+  u.rate = rate;
   speechSynthesis.speak(u);
 }
 
 /* ───────────────── 화면 꺼짐 방지 ───────────────── */
 let wakeLock = null;
-async function keepAwake(on) {
+async function keepAwake(onState) {
   try {
-    if (on && 'wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
-    else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+    if (native.isNative) {
+      await (onState ? native.KeepAwake.keepAwake() : native.KeepAwake.allowSleep());
+    } else if (onState && 'wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+    } else if (!onState && wakeLock) {
+      await wakeLock.release(); wakeLock = null;
+    }
   } catch { /* 미지원 */ }
 }
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && runner.active) keepAwake(true);
 });
 
+/* ───────────────── 아침 알림 (안드로이드 앱 전용) ───────────────── */
+const REMINDER_ID = 7001;
+async function scheduleReminder({ announce = false } = {}) {
+  if (!native.isNative) return;
+  const N = native.Notif;
+  try {
+    await N.cancel({ notifications: [{ id: REMINDER_ID }] });
+    if (!settings.reminder.on) return;
+    let perm = await N.checkPermissions();
+    if (perm.display !== 'granted') perm = await N.requestPermissions();
+    if (perm.display !== 'granted') {
+      settings.reminder.on = false; saveSettings(); renderSettings();
+      alert(t('reminder_denied'));
+      return;
+    }
+    const [hour, minute] = settings.reminder.time.split(':').map(Number);
+    await N.schedule({
+      notifications: [{
+        id: REMINDER_ID,
+        title: t('notif_title'),
+        body: t('notif_body'),
+        smallIcon: 'ic_stat_notify',
+        schedule: { on: { hour, minute }, allowWhileIdle: true },
+      }],
+    });
+    if (announce) alert(t('reminder_saved', { time: settings.reminder.time }));
+  } catch (err) {
+    console.warn('reminder', err);
+  }
+}
+
 /* ───────────────── 공통 ───────────────── */
 const $ = sel => document.querySelector(sel);
 const fig = id => `<div class="fig">${FIG[id]}</div>`;
-const fmtSec = s => s >= 60 ? `${Math.floor(s / 60)}분${s % 60 ? ` ${s % 60}초` : ''}` : `${s}초`;
+const exName = id => tx(id).name;
+function fmtSec(s) {
+  if (s < 60) return t('sec_n', { n: s });
+  const m = Math.floor(s / 60), r = s % 60;
+  return t('min_n', { n: m }) + (r ? ' ' + t('sec_n', { n: r }) : '');
+}
 function summary(id) {
   const c = settings.ex[id];
-  const side = EX[id].alternate ? ' (좌우 번갈아)' : '';
-  if (!on('timer')) return `${c.reps}회${side}${c.sets > 1 ? ` × ${c.sets}세트` : ''} · 직접 넘기기`;
-  return `${fmtSec(c.hold)} 유지 × ${c.reps}회${side}${c.sets > 1 ? ` × ${c.sets}세트` : ''}`;
+  const side = EXERCISES.find(e => e.id === id).alternate ? t('side_alt') : '';
+  const sets = c.sets > 1 ? t('sets_suffix', { n: c.sets }) : '';
+  if (!on('timer')) return t('summary_reps', { reps: c.reps }) + side + sets + t('manual_mode');
+  return t('summary_hold', { hold: fmtSec(c.hold), reps: c.reps }) + side + sets;
 }
 function exDuration(id) {
   const c = settings.ex[id];
   return settings.prep + c.sets * (c.reps * c.hold + (c.reps - 1) * c.rest) + (c.sets - 1) * c.setRest;
 }
-function birdSide(rep) {
-  return rep % 2 === 1 ? '왼팔 + 오른다리' : '오른팔 + 왼다리';
-}
+const unitText = (key, v) => `${v}${t(LIMITS[key].unit)}`;
 
 /* ───────────────── 홈 ───────────────── */
 function renderHome() {
-  const now = new Date();
-  $('#today-label').textContent = `${now.getMonth() + 1}월 ${now.getDate()}일 ${WEEK[now.getDay()]}요일`;
+  $('#today-label').textContent = fmtDate(new Date(), { month: 'long', day: 'numeric', weekday: 'long' });
   const st = streak();
-  $('#streak-badge').textContent = st ? `🔥 ${st}일 연속` : '🌱 오늘부터 시작';
+  $('#streak-badge').textContent = st ? t('streak_n', { n: st }) : t('streak_zero');
   $('#streak-badge').hidden = !on('log');
 
   const entry = on('log') ? log[todayKey()] : null;
@@ -385,41 +406,42 @@ function renderHome() {
   const total = active.reduce((a, e) => a + exDuration(e.id), 0);
   const tc = $('#today-card');
   if (entry?.status === 'done') {
-    tc.innerHTML = `<div class="big-icon">✅</div><div><strong>오늘 운동을 마쳤어요!</strong><span class="muted small">${entry.time || ''} 완료 · 한 번 더 해도 좋아요</span></div>`;
-    $('#start-btn').textContent = '▶ 다시 하기';
+    tc.innerHTML = `<div class="big-icon">✅</div><div><strong>${t('today_done_title')}</strong><span class="muted small">${t('today_done_sub', { time: entry.time || '' })}</span></div>`;
+    $('#start-btn').textContent = t('start_again');
   } else {
-    tc.innerHTML = `<div class="big-icon">☀️</div><div><strong>좋은 아침입니다</strong><span class="muted small">${active.length}가지 운동${on('timer') ? ` · 약 ${Math.ceil(total / 60)}분` : ' · 직접 넘기기'}</span></div>`;
-    $('#start-btn').textContent = '▶ 운동 시작';
+    const sub = t('today_sub', { n: active.length }) + (on('timer') ? t('about_min', { n: Math.ceil(total / 60) }) : t('manual_mode'));
+    tc.innerHTML = `<div class="big-icon">☀️</div><div><strong>${t('today_title')}</strong><span class="muted small">${sub}</span></div>`;
+    $('#start-btn').textContent = t('start');
   }
   $('#start-btn').disabled = active.length === 0;
-  $('#start-note').textContent = [
-    on('timer') ? '시작하면 화면이 꺼지지 않고' : '한 번 할 때마다 직접 눌러 넘기고',
-    on('sound') ? '음성으로 안내해 드립니다.' : '화면으로 안내해 드립니다.',
-  ].join(', ');
+  $('#start-note').textContent = t('start_note', {
+    a: on('timer') ? t('note_timer') : t('note_manual'),
+    b: on('sound') ? t('note_voice') : t('note_screen'),
+  });
 
   $('#ex-list').innerHTML = EXERCISES.map(e => `
     <li class="ex-item ${settings.ex[e.id].on ? '' : 'off'}">
       ${fig(e.id)}
-      <div class="info"><strong>${e.name}</strong><span>${settings.ex[e.id].on ? summary(e.id) : '꺼짐 (설정에서 켜기)'}</span></div>
-      ${on('guide') ? `<button class="icon-btn" data-guide="${e.id}" aria-label="${e.name} 자세 설명">ⓘ</button>` : ''}
+      <div class="info"><strong>${exName(e.id)}</strong><span>${settings.ex[e.id].on ? summary(e.id) : t('ex_off')}</span></div>
+      ${on('guide') ? `<button class="icon-btn" data-guide="${e.id}" aria-label="${esc(t('guide_aria', { name: exName(e.id) }))}">ⓘ</button>` : ''}
     </li>`).join('');
 }
 
 /* ───────────────── 자세 설명 ───────────────── */
 function openGuide(id) {
-  const e = EX[id];
+  const e = tx(id);
   const video = settings.ex[id].video;
   $('#guide-body').innerHTML = `
-    <h2>${e.name}</h2><p class="muted small">${e.en}</p>
+    <h2>${e.name}</h2><p class="muted small">${e.sub}</p>
     ${fig(id)}
-    <h3>방법 (병원 유인물)</h3>
+    <h3>${t('guide_method')}</h3>
     <ol>${e.steps.map(s => `<li>${s}</li>`).join('')}</ol>
-    ${e.memo ? `<h3>메모</h3><div class="memo">✍️ ${e.memo}</div>` : ''}
-    <h3>자세 포인트</h3>
+    ${e.memo ? `<h3>${t('guide_memo')}</h3><div class="memo">✍️ ${e.memo}</div>` : ''}
+    <h3>${t('guide_tips')}</h3>
     <ul>${e.tips.map(s => `<li>${s}</li>`).join('')}</ul>
-    <div class="caution">⚠️ 허리 통증이 엉덩이나 다리로 퍼지거나, 저림이 심해지면 바로 멈추고 담당 의료진과 상의하세요.</div>
-    ${video ? `<a class="btn primary" href="${encodeURI(video)}" target="_blank" rel="noopener">▶ 동영상 보기</a>`
-            : `<p class="small muted">유인물의 QR코드 동영상 주소를 설정 화면에 넣으면 여기서 바로 볼 수 있습니다.</p>`}`;
+    <div class="caution">${t('guide_caution')}</div>
+    ${video ? `<a class="btn primary" href="${encodeURI(video)}" target="_blank" rel="noopener">${t('guide_video')}</a>`
+            : `<p class="small muted">${t('guide_video_hint')}</p>`}`;
   $('#guide').showModal();
 }
 $('#guide-close').onclick = () => $('#guide').close();
@@ -433,7 +455,7 @@ document.addEventListener('click', ev => {
 let calMonth = new Date(); calMonth.setDate(1);
 function renderLog() {
   const y = calMonth.getFullYear(), m = calMonth.getMonth();
-  $('#cal-title').textContent = `${y}년 ${m + 1}월`;
+  $('#cal-title').textContent = fmtDate(calMonth, { year: 'numeric', month: 'long' });
   const first = new Date(y, m, 1).getDay();
   const days = new Date(y, m + 1, 0).getDate();
   const tk = todayKey();
@@ -450,9 +472,9 @@ function renderLog() {
   $('#cal-grid').innerHTML = html;
   const totalDone = Object.values(log).filter(v => v.status === 'done').length;
   $('#stats').innerHTML = `
-    <div class="stat"><b>${streak()}</b><span>연속 일수</span></div>
-    <div class="stat"><b>${monthDone}</b><span>이번 달</span></div>
-    <div class="stat"><b>${totalDone}</b><span>전체</span></div>`;
+    <div class="stat"><b>${streak()}</b><span>${t('stat_streak')}</span></div>
+    <div class="stat"><b>${monthDone}</b><span>${t('stat_month')}</span></div>
+    <div class="stat"><b>${totalDone}</b><span>${t('stat_total')}</span></div>`;
 }
 $('#cal-prev').onclick = () => { calMonth.setMonth(calMonth.getMonth() - 1); renderLog(); };
 $('#cal-next').onclick = () => { calMonth.setMonth(calMonth.getMonth() + 1); renderLog(); };
@@ -460,10 +482,11 @@ $('#cal-grid').addEventListener('click', ev => {
   const b = ev.target.closest('[data-day]');
   if (!b) return;
   const k = b.dataset.day;
-  const [, mm, dd] = k.split('-').map(Number);
+  const [yy, mm, dd] = k.split('-').map(Number);
+  const date = fmtDate(new Date(yy, mm - 1, dd), { month: 'long', day: 'numeric' });
   if (log[k]) {
-    if (confirm(`${mm}월 ${dd}일 기록을 지울까요?`)) { delete log[k]; saveLog(); }
-  } else if (confirm(`${mm}월 ${dd}일을 '운동 완료'로 표시할까요?`)) {
+    if (confirm(t('confirm_clear', { date }))) { delete log[k]; saveLog(); }
+  } else if (confirm(t('confirm_mark', { date }))) {
     log[k] = { status: 'done', manual: true };
     saveLog();
   }
@@ -472,37 +495,44 @@ $('#cal-grid').addEventListener('click', ev => {
 
 /* ───────────────── 설정 ───────────────── */
 function stepperHTML(value, key) {
-  const L = LIMITS[key];
-  return `<button type="button" data-d="-1" aria-label="줄이기">−</button><output>${value}${L.unit}</output><button type="button" data-d="1" aria-label="늘리기">+</button>`;
+  return `<button type="button" data-d="-1" aria-label="${t('dec')}">−</button><output>${unitText(key, value)}</output><button type="button" data-d="1" aria-label="${t('inc')}">+</button>`;
 }
 function renderSettings() {
-  $('#settings-features').innerHTML = FEATURES.map(f => `
-    <label class="row feat"><span><b>${f.label}</b><small class="muted">${f.desc}</small></span>
-      <input type="checkbox" class="switch" data-feature="${f.key}" ${on(f.key) ? 'checked' : ''}></label>`).join('');
+  $('#opt-lang').value = settings.lang;
+  $('#settings-features').innerHTML = FEATURE_KEYS.map(k => {
+    const [label, desc] = t('feat_' + k);
+    return `<label class="row feat"><span><b>${label}</b><small class="muted">${desc}</small></span>
+      <input type="checkbox" class="switch" data-feature="${k}" ${on(k) ? 'checked' : ''}></label>`;
+  }).join('');
   $('#sound-card').hidden = !on('sound');
   $('#sound-title').hidden = !on('sound');
   $('#prep-card').hidden = !on('timer');
+  $('#prep-title').hidden = !on('timer');
   $('#music-card').hidden = !on('music');
   $('#music-title').hidden = !on('music');
+  $('#reminder-card').hidden = !native.isNative;
+  $('#reminder-title').hidden = !native.isNative;
+  $('#opt-reminder').checked = settings.reminder.on;
+  $('#opt-reminder-time').value = settings.reminder.time;
+  $('#reminder-time-row').hidden = !settings.reminder.on;
   $('#opt-music-style').value = settings.musicStyle;
   $('#opt-music-vol').value = settings.musicVol;
   $('#music-vol-text').textContent = `${settings.musicVol}%`;
-  $('#prep-title').hidden = !on('timer');
+  $('#music-preview').textContent = previewTimer ? t('music_stop') : t('music_preview');
   $('#settings-ex').innerHTML = EXERCISES.map(e => {
-    const c = settings.ex[e.id];
+    const c = settings.ex[e.id], x = tx(e.id);
     const fields = on('timer') ? ['hold', 'reps', 'sets', 'rest'].concat(c.sets > 1 ? ['setRest'] : []) : ['reps', 'sets'];
     return `<div class="card ex-set">
-      <h3>${e.name}<input type="checkbox" class="switch" data-on="${e.id}" ${c.on ? 'checked' : ''} aria-label="${e.name} 켜기"></h3>
-      ${e.memo && on('guide') ? `<p class="hint small muted">✍️ ${e.memo}</p>` : ''}
-      ${e.alternate ? `<p class="hint small muted">좌우를 번갈아 1회씩 셉니다 (10회 = 한쪽 5회씩)</p>` : ''}
-      ${fields.map(f => `<div class="row"><span>${LIMITS[f].label}</span>
+      <h3>${x.name}<input type="checkbox" class="switch" data-on="${e.id}" ${c.on ? 'checked' : ''} aria-label="${esc(t('ex_toggle', { name: x.name }))}"></h3>
+      ${x.memo && on('guide') ? `<p class="hint small muted">✍️ ${x.memo}</p>` : ''}
+      ${e.alternate ? `<p class="hint small muted">${t('alt_hint')}</p>` : ''}
+      ${fields.map(f => `<div class="row"><span>${t('lbl_' + f)}</span>
         <div class="stepper" data-ex="${e.id}" data-key="${f}">${stepperHTML(c[f], f)}</div></div>`).join('')}
-      ${on('guide') ? `<div class="row" style="display:block"><span class="small muted">동영상 주소 (유인물 QR코드, 선택)</span>
-        <input type="url" data-video="${e.id}" placeholder="https://" value="${c.video ? c.video.replace(/"/g, '&quot;') : ''}"></div>` : ''}
+      ${on('guide') ? `<div class="row" style="display:block"><span class="small muted">${t('video_label')}</span>
+        <input type="url" data-video="${e.id}" placeholder="https://" value="${esc(c.video || '')}"></div>` : ''}
     </div>`;
   }).join('');
-  const ps = document.querySelector('[data-global="prep"]');
-  ps.innerHTML = stepperHTML(settings.prep, 'prep');
+  document.querySelector('[data-global="prep"]').innerHTML = stepperHTML(settings.prep, 'prep');
   $('#opt-voice').checked = settings.voice;
   $('#opt-count').checked = settings.count;
   $('#opt-beep').checked = settings.beep;
@@ -518,25 +548,40 @@ $('#view-settings').addEventListener('click', ev => {
   obj[key] = Math.min(L.max, Math.max(L.min, obj[key] + Number(btn.dataset.d) * L.step));
   saveSettings();
   if (key === 'sets') renderSettings();
-  else box.querySelector('output').textContent = obj[key] + L.unit;
+  else box.querySelector('output').textContent = unitText(key, obj[key]);
   renderHome();
 });
 $('#view-settings').addEventListener('change', ev => {
-  const t = ev.target;
-  if (t.dataset.feature) {
-    settings.features[t.dataset.feature] = t.checked;
-    if (t.dataset.feature === 'music' && !t.checked) stopPreview();
+  const tg = ev.target;
+  if (tg.dataset.feature) {
+    settings.features[tg.dataset.feature] = tg.checked;
+    if (tg.dataset.feature === 'music' && !tg.checked) stopPreview();
     saveSettings(); applyFeatures(); renderAll();
     return;
   }
-  if (t.dataset.on) settings.ex[t.dataset.on].on = t.checked;
-  else if (t.dataset.video) settings.ex[t.dataset.video].video = /^https?:\/\//i.test(t.value.trim()) ? t.value.trim() : '';
-  else if (t.id === 'opt-voice') settings.voice = t.checked;
-  else if (t.id === 'opt-count') settings.count = t.checked;
-  else if (t.id === 'opt-beep') settings.beep = t.checked;
-  else if (t.id === 'opt-rate') settings.rate = Number(t.value);
-  else if (t.id === 'opt-music-style') { settings.musicStyle = t.value; music.restart(); }
-  else if (t.id === 'opt-music-vol') settings.musicVol = Number(t.value);
+  if (tg.id === 'opt-lang') {
+    settings.lang = tg.value;
+    saveSettings();
+    if (!native.isNative) pickVoice();
+    applyStaticText(); renderAll();
+    scheduleReminder(); // 알림 문구도 새 언어로
+    return;
+  }
+  if (tg.id === 'opt-reminder' || tg.id === 'opt-reminder-time') {
+    if (tg.id === 'opt-reminder') settings.reminder.on = tg.checked;
+    else if (tg.value) settings.reminder.time = tg.value;
+    saveSettings(); renderSettings();
+    scheduleReminder({ announce: settings.reminder.on });
+    return;
+  }
+  if (tg.dataset.on) settings.ex[tg.dataset.on].on = tg.checked;
+  else if (tg.dataset.video) settings.ex[tg.dataset.video].video = /^https?:\/\//i.test(tg.value.trim()) ? tg.value.trim() : '';
+  else if (tg.id === 'opt-voice') settings.voice = tg.checked;
+  else if (tg.id === 'opt-count') settings.count = tg.checked;
+  else if (tg.id === 'opt-beep') settings.beep = tg.checked;
+  else if (tg.id === 'opt-rate') settings.rate = Number(tg.value);
+  else if (tg.id === 'opt-music-style') { settings.musicStyle = tg.value; music.restart(); }
+  else if (tg.id === 'opt-music-vol') settings.musicVol = Number(tg.value);
   else return;
   saveSettings(); renderHome();
 });
@@ -549,35 +594,47 @@ function stopPreview() {
   if (!previewTimer) return;
   clearTimeout(previewTimer); previewTimer = null;
   music.stop();
-  $('#music-preview').textContent = '▶ 미리 듣기';
+  $('#music-preview').textContent = t('music_preview');
 }
 $('#music-preview').onclick = () => {
   if (previewTimer) return stopPreview();
   music.start();
-  $('#music-preview').textContent = '■ 멈추기';
+  $('#music-preview').textContent = t('music_stop');
   previewTimer = setTimeout(stopPreview, 20000);
 };
 
 $('#test-voice').onclick = () => {
-  const was = settings.voice; settings.voice = true;
-  speechSynthesis?.getVoices && pickVoice();
-  say('좋은 아침입니다. 오늘도 코어 운동을 시작해 볼까요?');
-  settings.voice = was; beep();
-  if (!('speechSynthesis' in window)) alert('이 브라우저는 음성 안내를 지원하지 않습니다. 크롬이나 삼성 인터넷을 사용해 주세요.');
+  if (!canSpeak()) { alert(t('no_tts')); return; }
+  if (!native.isNative) pickVoice();
+  say(t('test_voice_say'), { force: true });
+  beep();
 };
 $('#reset-settings').onclick = () => {
-  if (!confirm('운동 설정을 기본값으로 되돌릴까요? (기록은 그대로 남습니다)')) return;
-  const features = settings.features;
-  settings = clone(DEFAULTS); settings.features = features; saveSettings(); renderSettings(); renderHome();
+  if (!confirm(t('confirm_reset'))) return;
+  const keep = { features: settings.features, lang: settings.lang, reminder: settings.reminder };
+  settings = { ...clone(DEFAULTS), ...keep };
+  saveSettings(); renderSettings(); renderHome();
 };
-$('#export-btn').onclick = () => {
-  const blob = new Blob([JSON.stringify({ app: 'core-fit', settings, log }, null, 2)], { type: 'application/json' });
+
+async function exportBackup() {
+  const json = JSON.stringify({ app: 'core-fit', settings, log }, null, 2);
+  const name = `${t('backup_name')}-${todayKey()}.json`;
+  if (native.isNative) {
+    // 앱에서는 파일을 만든 뒤 공유 창(카카오톡, 드라이브, 메일 등)으로 보냅니다
+    try {
+      const { uri } = await native.Files.writeFile({ path: name, data: json, directory: 'CACHE', encoding: 'utf8' });
+      await native.Share.share({ title: name, files: [uri] });
+    } catch (err) { console.warn('backup', err); }
+    return;
+  }
+  const blob = new Blob([json], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `코어운동-백업-${todayKey()}.json`;
+  a.download = name;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-};
+}
+$('#export-btn').onclick = exportBackup;
 $('#import-btn').onclick = () => $('#import-file').click();
 $('#import-file').onchange = async ev => {
   const file = ev.target.files[0];
@@ -585,11 +642,12 @@ $('#import-file').onchange = async ev => {
   try {
     const data = JSON.parse(await file.text());
     if (data.app !== 'core-fit') throw new Error();
-    if (!confirm('백업을 불러오면 지금 기록과 설정이 백업 내용으로 바뀝니다. 계속할까요?')) return;
+    if (!confirm(t('confirm_import'))) return;
     store.set('cf.settings', data.settings || {}); settings = loadSettings();
     log = data.log || {}; saveLog();
-    applyFeatures(); renderAll(); alert('백업을 불러왔습니다.');
-  } catch { alert('올바른 백업 파일이 아닙니다.'); }
+    applyStaticText(); applyFeatures(); renderAll(); scheduleReminder();
+    alert(t('import_ok'));
+  } catch { alert(t('import_bad')); }
   ev.target.value = '';
 };
 
@@ -626,8 +684,8 @@ function startWorkout() {
   document.body.style.overflow = 'hidden';
   keepAwake(true);
   beep(660, 80, 0.01); // 오디오 잠금 해제
-  if (previewTimer) { clearTimeout(previewTimer); previewTimer = null; $('#music-preview').textContent = '▶ 미리 듣기'; music.stop(0.3); }
-  if (on('music')) setTimeout(() => music.start(), previewTimer === null ? 400 : 0);
+  if (previewTimer) { clearTimeout(previewTimer); previewTimer = null; $('#music-preview').textContent = t('music_preview'); music.stop(0.3); }
+  if (on('music')) setTimeout(() => music.start(), 400);
   enterStep();
   runner.timer = setInterval(tick, 100);
 }
@@ -643,7 +701,8 @@ function enterStep() {
   runner.remainMs = st.dur * 1000;
   runner.endAt = performance.now() + runner.remainMs;
   runner.lastSec = null;
-  const e = EX[st.ex], c = settings.ex[st.ex];
+  const e = tx(st.ex), c = settings.ex[st.ex];
+  const alternate = EXERCISES.find(x => x.id === st.ex).alternate;
 
   const W = $('#workout');
   W.dataset.phase = st.type;
@@ -652,27 +711,27 @@ function enterStep() {
   $('#wo-figure').innerHTML = fig(st.ex);
   let phase, cue, count = '', speech;
   if (st.type === 'prep') {
-    phase = '준비';
+    phase = t('phase_prep');
     cue = e.prepCue;
     count = summary(st.ex);
-    speech = on('guide') ? `${e.name}. ${e.prepCue}` : `${e.name}. 준비하세요`;
+    speech = on('guide') ? `${e.name}. ${e.prepCue}` : t('say_prep_short', { name: e.name });
   } else if (st.type === 'hold') {
     phase = e.holdWord;
     cue = e.holdCue;
-    count = `${st.rep} / ${c.reps}회${c.sets > 1 ? ` · ${st.set}세트` : ''}`;
-    if (e.alternate) {
-      const side = birdSide(st.rep);
-      phase = side;
-      speech = `${st.rep}회. ${side.replace(' + ', '과 ')}을 뻗으세요`;
+    count = t('count_rep', { rep: st.rep, reps: c.reps }) + (c.sets > 1 ? t('set_suffix', { n: st.set }) : '');
+    if (alternate) {
+      const a = st.rep % 2 === 1;
+      phase = t(a ? 'side_a' : 'side_b');
+      speech = t('say_rep', { rep: st.rep }) + t(a ? 'say_side_a' : 'say_side_b');
     } else {
-      speech = `${st.rep}회. ${e.holdSay}`;
+      speech = t('say_rep', { rep: st.rep }) + e.holdSay;
     }
     beep(988, 160);
   } else {
-    phase = st.setBreak ? '세트 휴식' : e.restWord;
-    cue = st.setBreak ? `${st.set}세트 끝! 잠시 쉬고 다음 세트를 합니다.` : e.restCue;
-    count = `${st.rep} / ${c.reps}회 완료`;
-    speech = st.setBreak ? `${st.set}세트 끝. 쉬세요` : e.restSay;
+    phase = st.setBreak ? t('phase_setrest') : e.restWord;
+    cue = st.setBreak ? t('cue_setrest', { n: st.set }) : e.restCue;
+    count = t('count_done', { rep: st.rep, reps: c.reps });
+    speech = st.setBreak ? t('say_setrest', { n: st.set }) : e.restSay;
     beep(523, 160);
   }
   $('#wo-phase').textContent = phase;
@@ -682,7 +741,7 @@ function enterStep() {
     $('#wo-time').textContent = st.type === 'prep' ? '▶' : st.rep;
     $('#wo-ring').style.strokeDashoffset = st.type === 'prep' ? '0'
       : String(326.73 * (1 - st.rep / settings.ex[st.ex].reps));
-    $('#wo-pause').textContent = st.type === 'prep' ? '▶ 시작' : `✓ ${st.rep}회 완료`;
+    $('#wo-pause').textContent = st.type === 'prep' ? t('manual_start') : t('manual_done', { n: st.rep });
   }
   $('#wo-count').textContent = count;
   say(speech);
@@ -703,11 +762,11 @@ function tick() {
   if (!runner.paused && sec !== runner.lastSec) {
     runner.lastSec = sec;
     if (sec > 0 && sec <= 3 && st.dur >= 5) {
-      // 플랭크처럼 긴 유지에는 중간 안내
-      if (settings.count && settings.voice) say(['', '하나', '둘', '셋'][sec]);
+      if (settings.count && settings.voice && on('sound')) say(t('count_words')[sec]);
       else beep(740, 90, 0.18);
     } else if (st.type === 'hold' && st.dur >= 20 && sec === Math.floor(st.dur / 2) && sec > 5) {
-      say(`${sec}초 남았습니다. 호흡하세요`);
+      // 플랭크처럼 긴 유지에는 중간 안내
+      say(t('say_half', { n: sec }));
     }
   }
   if (!runner.paused && remain <= 0) {
@@ -730,17 +789,17 @@ function togglePause() {
   if (runner.paused) {
     runner.paused = false;
     runner.endAt = performance.now() + runner.remainMs;
-    $('#wo-pause').textContent = '⏸ 일시정지';
+    $('#wo-pause').textContent = t('wo_pause');
     $('#workout').classList.remove('paused');
     if (on('music')) music.start();
-    say('다시 시작합니다');
+    say(t('say_resume'));
   } else {
     runner.paused = true;
     runner.remainMs = Math.max(0, runner.endAt - performance.now());
-    $('#wo-pause').textContent = '▶ 계속하기';
+    $('#wo-pause').textContent = t('wo_resume');
     $('#workout').classList.add('paused');
     music.stop(0.6);
-    say('일시정지');
+    say(t('say_pause'));
   }
 }
 function jump(dir) {
@@ -762,7 +821,7 @@ function stopRunner() {
   keepAwake(false);
   $('#workout').hidden = true;
   $('#workout').classList.remove('paused');
-  $('#wo-pause').textContent = '⏸ 일시정지';
+  $('#wo-pause').textContent = t('wo_pause');
   document.body.style.overflow = '';
 }
 
@@ -772,10 +831,11 @@ function finishWorkout(complete) {
   const now = new Date();
   const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
   const done = [...runner.completed];
+  const names = done.map(exName).join(t('list_sep'));
   if (!on('log')) {
     if (complete) {
-      say('오늘 운동을 모두 마쳤습니다. 수고하셨습니다!');
-      $('#done-text').textContent = `${done.map(id => EX[id].name).join(', ')} 완료`;
+      say(t('say_done'));
+      $('#done-text').textContent = t('done_text', { names });
       $('#done').hidden = false;
     }
     return renderAll();
@@ -783,10 +843,10 @@ function finishWorkout(complete) {
   if (complete) {
     log[k] = { status: 'done', time, items: done, minutes: Math.round((now - runner.startedAt) / 60000) };
     saveLog();
-    say('오늘 운동을 모두 마쳤습니다. 수고하셨습니다!');
+    say(t('say_done'));
     beep(1047, 300);
     const st = streak();
-    $('#done-text').textContent = `${done.map(id => EX[id].name).join(', ')} 완료${st > 1 ? ` · 🔥 ${st}일 연속!` : ''}`;
+    $('#done-text').textContent = t('done_text', { names }) + (st > 1 ? t('done_streak', { n: st }) : '');
     $('#done').hidden = false;
   } else if (done.length && log[k]?.status !== 'done') {
     log[k] = { status: 'partial', time, items: done };
@@ -799,15 +859,16 @@ $('#start-btn').onclick = startWorkout;
 $('#wo-pause').onclick = togglePause;
 $('#wo-next').onclick = () => jump(1);
 $('#wo-prev').onclick = () => jump(-1);
-$('#wo-close').onclick = () => {
+function askQuit() {
   const wasPaused = runner.paused;
   const manual = !on('timer');
   if (!wasPaused && !manual) togglePause();
-  if (confirm('운동을 끝낼까요? 끝까지 마친 운동은 기록에 남습니다.')) {
-    speechSynthesis?.cancel();
+  if (confirm(t('confirm_quit'))) {
+    stopSpeech();
     finishWorkout(false);
   } else if (!wasPaused && !manual) togglePause();
-};
+}
+$('#wo-close').onclick = askQuit;
 $('#done-ok').onclick = () => { $('#done').hidden = true; showView(on('log') ? 'log' : 'home'); };
 
 /* ───────────────── 탭 이동 ───────────────── */
@@ -820,14 +881,27 @@ function showView(name) {
 }
 document.querySelectorAll('.tabbar button').forEach(b => b.onclick = () => showView(b.dataset.view));
 
+/* 안드로이드 뒤로가기: 열린 창 → 운동 화면 → 홈 순서로 닫고, 홈에서는 앱 종료 */
+if (native.isNative) {
+  window.capacitorExports?.registerPlugin('App')?.addListener?.('backButton', () => {
+    if ($('#guide').open) return $('#guide').close();
+    if (!$('#done').hidden) return $('#done-ok').click();
+    if (runner.active) return askQuit();
+    if (!$('#view-home').classList.contains('active')) return showView('home');
+    window.capacitorExports.registerPlugin('App').exitApp();
+  });
+}
+
 function applyFeatures() {
   document.querySelector('.tabbar [data-view="log"]').hidden = !on('log');
   if (!on('log') && $('#view-log').classList.contains('active')) showView('home');
 }
 function renderAll() { renderHome(); renderLog(); renderSettings(); }
+applyStaticText();
 applyFeatures();
 renderAll();
+if (native.isNative && settings.reminder.on) scheduleReminder();
 
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+if (!native.isNative && 'serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }

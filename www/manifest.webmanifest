@@ -1,6 +1,6 @@
 {
-  "name": "아침 코어 운동",
-  "short_name": "코어운동",
+  "name": "EarllnCore",
+  "short_name": "EarllnCore",
   "description": "맥켄지·플랭크·버드독 운동을 음성과 타이머로 안내합니다.",
   "start_url": "./",
   "scope": "./",

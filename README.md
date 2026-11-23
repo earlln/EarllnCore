@@ -1,4 +1,4 @@
-# 아침 코어 운동 (EarllnFit)
+# EarllnCore — 아침 코어 운동
 
 연세힐 추천 코어 운동 유인물(맥켄지 신전 운동 · 플랭크 · 버드 독)을 매일 아침 따라 할 수 있게 도와주는 웹앱(PWA)과 안드로이드 앱입니다.
 
@@ -21,7 +21,7 @@
 | 버드 독 | 5초 | 10회 (좌우 번갈아) | 3초 |
 
 ## 안드로이드 앱(APK) 설치하기
-1. 휴대폰에서 [최신 Release](https://github.com/earlln/EarllnFit/releases/latest)를 열고 `MorningCore-….apk`를 내려받습니다.
+1. 휴대폰에서 [최신 Release](https://github.com/earlln/EarllnCore/releases/latest)를 열고 `EarllnCore-….apk`를 내려받습니다.
 2. 처음 한 번은 "출처를 알 수 없는 앱 설치"를 허용해야 합니다.
 3. 새 버전이 나오면 같은 방법으로 받아 덮어 설치하면 기록이 그대로 유지됩니다.
 
@@ -30,6 +30,10 @@ APK는 `main`에 반영될 때마다 `.github/workflows/android.yml`이 자동�
 ### 서명 키에 대해
 - 기본으로는 저장소의 개인 설치용 키(`android/keystore/sideload.jks`)로 서명합니다. 저장소가 공개라서 이 키는 누구나 볼 수 있으니, **이 저장소의 Release가 아닌 곳에서 받은 APK는 설치하지 마세요.**
 - 더 안전하게 하려면 새 키를 만들어 저장소 Secrets에 `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`를 넣으세요. 그러면 그 키로 서명합니다. (키를 바꾸면 기존 앱을 지우고 다시 설치해야 하므로, 백업을 먼저 해 두세요.)
+
+## 버전
+- 버전 번호는 `www/version.js`의 `APP_VERSION` 한 곳에서 관리합니다. 앱에는 `버전 1.1.0 (빌드 N)` 형태로 표시됩니다.
+- 빌드 번호는 GitHub Actions 실행 번호로 자동으로 올라갑니다.
 
 ## 폴더 구성
 - `www/` — 웹앱 (GitHub Pages로 배포)

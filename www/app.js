@@ -106,6 +106,16 @@ function applyStaticText() {
   document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
   document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
   $('#cal-week').innerHTML = t('week').map(w => `<span>${w}</span>`).join('');
+  renderVersion();
+}
+
+/* 버전 표시: 웹은 version.js, 안드로이드 앱은 설치된 앱 정보(버전 + 빌드 번호) */
+let appInfo = { version: window.APP_VERSION || '', build: '' };
+function renderVersion() {
+  if (!appInfo.version) return;
+  const text = `${t('app_title')} · ${t('version_label', { v: appInfo.version })}`
+    + (appInfo.build ? ` (${t('build_n', { n: appInfo.build })})` : '');
+  document.querySelectorAll('[data-version]').forEach(el => { el.textContent = text; });
 }
 
 /* ───────────────── 안드로이드 앱(Capacitor) 연결 ───────────────── */
@@ -901,6 +911,11 @@ applyStaticText();
 applyFeatures();
 renderAll();
 if (native.isNative && settings.reminder.on) scheduleReminder();
+if (native.isNative) {
+  window.capacitorExports.registerPlugin('App').getInfo()
+    .then(info => { appInfo = { version: info.version, build: info.build }; renderVersion(); })
+    .catch(() => {});
+}
 
 if (!native.isNative && 'serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});

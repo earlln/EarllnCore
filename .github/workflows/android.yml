@@ -36,27 +36,24 @@ jobs:
       - name: Copy web app into the Android project
         run: npm run sync
 
-      # 선택 사항: 저장소 Secrets에 서명 키를 넣어 두면 그 키로 서명합니다.
-      # 없으면 저장소에 있는 개인 설치용 키(android/keystore/sideload.jks)를 씁니다.
-      - name: Use signing key from secrets (optional)
+      # 서명 키는 저장소에 암호화되어 있습니다. Secrets의 비밀번호로 풀어서 씁니다.
+      - name: Decrypt signing key
         env:
-          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_SIGNING_PASSWORD: ${{ secrets.ANDROID_SIGNING_PASSWORD }}
         run: |
-          if [ -n "$KEYSTORE_BASE64" ]; then
-            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
-            echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
-            echo "Using keystore from secrets"
-          else
-            echo "Using sideload keystore from the repository"
+          if [ -z "$ANDROID_SIGNING_PASSWORD" ]; then
+            echo "::error::Secret ANDROID_SIGNING_PASSWORD is not set (Settings → Secrets and variables → Actions)."
+            exit 1
           fi
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 \
+            -in android/keystore/release.jks.enc -out "$RUNNER_TEMP/release.jks" -pass env:ANDROID_SIGNING_PASSWORD
+          echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
 
       - name: Build APK
         working-directory: android
         env:
           APP_VERSION_CODE: ${{ github.run_number }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_SIGNING_PASSWORD: ${{ secrets.ANDROID_SIGNING_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon --stacktrace
@@ -68,6 +65,10 @@ jobs:
           cp android/app/build/outputs/apk/release/app-release.apk "$APK"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "APK=$APK" >> "$GITHUB_ENV"
+
+      - name: Remove decrypted key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"
 
       - uses: actions/upload-artifact@v4
         with:

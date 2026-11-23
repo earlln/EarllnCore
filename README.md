@@ -28,8 +28,10 @@
 APK는 `main`에 반영될 때마다 `.github/workflows/android.yml`이 자동으로 만듭니다.
 
 ### 서명 키에 대해
-- 기본으로는 저장소의 개인 설치용 키(`android/keystore/sideload.jks`)로 서명합니다. 저장소가 공개라서 이 키는 누구나 볼 수 있으니, **이 저장소의 Release가 아닌 곳에서 받은 APK는 설치하지 마세요.**
-- 더 안전하게 하려면 새 키를 만들어 저장소 Secrets에 `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`를 넣으세요. 그러면 그 키로 서명합니다. (키를 바꾸면 기존 앱을 지우고 다시 설치해야 하므로, 백업을 먼저 해 두세요.)
+- 서명 키는 암호화된 파일(`android/keystore/release.jks.enc`)로만 저장소에 있고, 비밀번호는 GitHub Secrets의 `ANDROID_SIGNING_PASSWORD`에만 있습니다. 비밀번호가 없으면 빌드가 실패합니다.
+- **비밀번호를 잃어버리면 앞으로 업데이트를 덮어 설치할 수 없습니다.** 비밀번호는 따로 안전하게 보관하세요.
+- 1.1.0까지는 공개된 임시 키로 서명했습니다. 1.1.1부터 키가 바뀌었으므로, 이전 버전이 깔려 있으면 **백업 저장 → 앱 삭제 → 새 APK 설치 → 백업 불러오기** 순서로 옮겨 주세요.
+- 이 저장소 Releases 또는 earlln.com 이외의 곳에서 받은 APK는 설치하지 마세요.
 
 ## 버전
 - 버전 번호는 `www/version.js`의 `APP_VERSION` 한 곳에서 관리합니다. 앱에는 `버전 1.1.0 (빌드 N)` 형태로 표시됩니다.

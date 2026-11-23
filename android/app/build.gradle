@@ -20,12 +20,15 @@ android {
     }
     signingConfigs {
         release {
-            // 비밀값(GitHub Secrets)이 있으면 그 키로, 없으면 저장소의 개인 설치용 키로 서명합니다
+            // 서명 키는 저장소에 암호화되어 있고(android/keystore/release.jks.enc),
+            // GitHub Actions가 Secrets의 비밀번호로 풀어서 경로와 비밀번호를 넘겨줍니다.
             def ksPath = System.getenv("ANDROID_KEYSTORE_FILE")
-            storeFile ksPath ? file(ksPath) : rootProject.file("keystore/sideload.jks")
-            storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: "corefit-sideload"
-            keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: "corefit"
-            keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: "corefit-sideload"
+            if (ksPath) {
+                storeFile file(ksPath)
+                storePassword System.getenv("ANDROID_SIGNING_PASSWORD")
+                keyAlias "corefit"
+                keyPassword System.getenv("ANDROID_SIGNING_PASSWORD")
+            }
         }
     }
     buildTypes {

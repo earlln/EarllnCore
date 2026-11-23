@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#2f6fd6">
   <meta name="description" content="연세힐 추천 코어 운동(맥켄지·플랭크·버드독)을 매일 아침 도와주는 운동 도우미">
-  <title>아침 코어 운동</title>
+  <title>EarllnCore</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -18,7 +18,8 @@
       <header class="top">
         <div>
           <p class="muted" id="today-label"></p>
-          <h1 data-i18n="app_title">아침 코어 운동</h1>
+          <h1 data-i18n="app_title">EarllnCore</h1>
+          <p class="tagline" data-i18n="tagline">아침 코어 운동</p>
         </div>
         <div class="streak" id="streak-badge" data-i18n-title="streak_title"></div>
       </header>
@@ -30,6 +31,7 @@
 
       <button class="btn primary big" id="start-btn"></button>
       <p class="muted small center" id="start-note"></p>
+      <p class="version center" data-version></p>
     </section>
 
     <!-- 기록 -->
@@ -114,6 +116,7 @@
         <button class="btn ghost danger" id="reset-settings" data-i18n="reset_settings"></button>
       </div>
       <p class="muted small center" data-i18n-html="footer_caution"></p>
+      <p class="version center" data-version></p>
     </section>
 
     <nav class="tabbar">
@@ -169,6 +172,7 @@
     </div>
   </dialog>
 
+  <script src="version.js"></script>
   <script src="i18n.js"></script>
   <script src="app.js"></script>
 </body>

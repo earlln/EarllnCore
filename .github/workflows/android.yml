@@ -62,22 +62,29 @@ jobs:
           ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Name the APK
-        run: cp android/app/build/outputs/apk/release/app-release.apk "MorningCore-1.0.${{ github.run_number }}.apk"
+        run: |
+          VERSION=$(sed -n "s/.*APP_VERSION *= *'\([^']*\)'.*/\1/p" www/version.js)
+          APK="EarllnCore-${VERSION}-build${{ github.run_number }}.apk"
+          cp android/app/build/outputs/apk/release/app-release.apk "$APK"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "APK=$APK" >> "$GITHUB_ENV"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: MorningCore-1.0.${{ github.run_number }}
-          path: MorningCore-1.0.${{ github.run_number }}.apk
+          name: ${{ env.APK }}
+          path: ${{ env.APK }}
 
       # main에 반영될 때만 휴대폰에서 바로 받을 수 있는 Release를 만듭니다
       - name: Publish release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: android-v1.0.${{ github.run_number }}
-          name: 아침 코어 운동 1.0.${{ github.run_number }}
+          tag_name: v${{ env.VERSION }}-build${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          name: EarllnCore ${{ env.VERSION }} (빌드 ${{ github.run_number }})
           make_latest: true
-          files: MorningCore-1.0.${{ github.run_number }}.apk
+          files: ${{ env.APK }}
           body: |
-            휴대폰에서 아래 **MorningCore-1.0.${{ github.run_number }}.apk** 를 눌러 내려받고 설치하세요.
+            휴대폰에서 아래 **${{ env.APK }}** 를 눌러 내려받고 설치하세요.
+            이전 버전이 깔려 있으면 그대로 덮어 설치하면 되고, 기록은 유지됩니다.
             처음 설치할 때는 "출처를 알 수 없는 앱 설치"를 허용해야 합니다.

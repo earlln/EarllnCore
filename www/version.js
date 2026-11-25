@@ -1,2 +1,2 @@
 // 앱 버전 (여기 한 곳만 바꾸면 웹앱·안드로이드 앱에 모두 반영됩니다)
-window.APP_VERSION = '1.1.1';
+window.APP_VERSION = '1.2.0';

@@ -32,11 +32,11 @@ const EXERCISES = [
   { id: 'plank' },
   { id: 'birddog', alternate: true },
 ];
-const FEATURE_KEYS = ['timer', 'sound', 'log', 'guide', 'music'];
+const FEATURE_KEYS = ['timer', 'sound', 'log', 'guide', 'music', 'video'];
 
 const DEFAULTS = {
   lang: (navigator.language || 'ko').toLowerCase().startsWith('ko') ? 'ko' : 'en',
-  features: { timer: true, sound: true, log: true, guide: true, music: true },
+  features: { timer: true, sound: true, log: true, guide: true, music: true, video: true },
   musicStyle: 'pad',
   musicVol: 40,
   prep: 10,
@@ -384,7 +384,46 @@ async function scheduleReminder({ announce = false } = {}) {
 
 /* ───────────────── 공통 ───────────────── */
 const $ = sel => document.querySelector(sel);
-const fig = id => `<div class="fig">${FIG[id]}</div>`;
+/* 운동 그림: 영상 기능이 켜져 있으면 반복 재생 영상, 꺼져 있으면 간단한 그림 */
+const mediaSrc = name => `media/${name}.mp4`;
+const fig = id => on('video')
+  ? `<div class="fig vid"><video src="${mediaSrc(id + '-loop')}" poster="media/${id}.jpg" muted autoplay loop playsinline preload="auto" aria-hidden="true"></video></div>`
+  : `<div class="fig">${FIG[id]}</div>`;
+
+/* 운동 화면의 영상: 타이머 단계(준비/유지/휴식)에 맞춰 알맞은 동작 구간을 재생합니다 */
+function workoutClip(st) {
+  const manual = !on('timer');
+  const side = st.rep % 2 === 1 ? 'a' : 'b';
+  if (st.type === 'prep' || manual) return { name: st.ex + '-loop', loop: true };
+  if (st.ex === 'plank') return st.type === 'hold' ? { name: 'plank-loop', loop: true } : { name: 'plank-loop', still: true };
+  if (st.ex === 'mckenzie') return { name: st.type === 'hold' ? 'mckenzie-up' : 'mckenzie-down' };
+  if (st.setBreak) return { name: 'birddog-loop', still: true };
+  return { name: `birddog-${side}-${st.type === 'hold' ? 'out' : 'back'}` };
+}
+function showWorkoutMedia(st) {
+  const box = $('#wo-figure');
+  if (!on('video')) { box.innerHTML = `<div class="fig">${FIG[st.ex]}</div>`; return; }
+  let v = box.querySelector('video');
+  if (!v) {
+    box.innerHTML = '<div class="fig vid"><video muted playsinline preload="auto" aria-hidden="true"></video></div>';
+    v = box.querySelector('video');
+  }
+  const clip = workoutClip(st);
+  const src = mediaSrc(clip.name);
+  v.loop = !!clip.loop;
+  v.poster = `media/${st.ex}.jpg`;
+  if (!v.src.endsWith(src)) v.src = src;
+  try { v.currentTime = 0; } catch { /* 아직 불러오는 중 */ }
+  if (clip.still || runner.paused) v.pause();
+  else v.play().catch(() => {});
+}
+function pauseWorkoutMedia(paused) {
+  const v = $('#wo-figure video');
+  if (!v) return;
+  if (paused) v.pause();
+  else if (!v.ended && v.loop) v.play().catch(() => {});
+  else if (!v.ended && v.currentTime > 0 && v.currentTime < v.duration) v.play().catch(() => {});
+}
 const exName = id => tx(id).name;
 function fmtSec(s) {
   if (s < 60) return t('sec_n', { n: s });
@@ -718,7 +757,7 @@ function enterStep() {
   W.dataset.phase = st.type;
   W.classList.toggle('manual', !on('timer'));
   $('#wo-ex').textContent = e.name;
-  $('#wo-figure').innerHTML = fig(st.ex);
+  showWorkoutMedia(st);
   let phase, cue, count = '', speech;
   if (st.type === 'prep') {
     phase = t('phase_prep');
@@ -801,6 +840,7 @@ function togglePause() {
     runner.endAt = performance.now() + runner.remainMs;
     $('#wo-pause').textContent = t('wo_pause');
     $('#workout').classList.remove('paused');
+    pauseWorkoutMedia(false);
     if (on('music')) music.start();
     say(t('say_resume'));
   } else {
@@ -808,6 +848,7 @@ function togglePause() {
     runner.remainMs = Math.max(0, runner.endAt - performance.now());
     $('#wo-pause').textContent = t('wo_resume');
     $('#workout').classList.add('paused');
+    pauseWorkoutMedia(true);
     music.stop(0.6);
     say(t('say_pause'));
   }
@@ -830,6 +871,7 @@ function stopRunner() {
   clearInterval(runner.timer);
   keepAwake(false);
   $('#workout').hidden = true;
+  $('#wo-figure').innerHTML = '';
   $('#workout').classList.remove('paused');
   $('#wo-pause').textContent = t('wo_pause');
   document.body.style.overflow = '';

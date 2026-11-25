@@ -127,6 +127,7 @@ const I18N = {
     feat_log: ['매일 기록/달력', '끄면 기록 탭과 연속 일수가 숨겨지고 새 기록을 저장하지 않습니다. (기존 기록은 보관)'],
     feat_guide: ['자세 설명/주의사항', '끄면 ⓘ 설명 버튼과 운동 중 자세 안내 문구가 숨겨집니다.'],
     feat_music: ['배경음악', '운동하는 동안 잔잔한 음악을 깔아줍니다. 음성 안내가 나올 때는 자동으로 작아집니다.'],
+    feat_video: ['운동 영상', '동작을 영상으로 보여줍니다. 운동 중에는 타이머에 맞춰 올라가고 내려옵니다. 끄면 간단한 그림으로 보여줍니다.'],
 
     phase_prep: '준비',
     say_prep_short: '{name}. 준비하세요',
@@ -279,6 +280,7 @@ const I18N = {
     feat_log: ['Daily history & calendar', 'When off, the History tab and streak are hidden and new workouts aren’t saved. (Past records are kept.)'],
     feat_guide: ['Form guide & cautions', 'When off, the ⓘ guide buttons and on-screen form cues are hidden.'],
     feat_music: ['Background music', 'Plays calm music during your workout. It gets quieter automatically while the voice speaks.'],
+    feat_video: ['Exercise videos', 'Shows each movement as a video, synced to the timer during your workout. When off, a simple drawing is shown.'],
 
     phase_prep: 'Get ready',
     say_prep_short: '{name}. Get ready',

@@ -393,7 +393,8 @@ const fig = id => on('video')
 /* 운동 화면의 영상: 타이머 단계(준비/유지/휴식)에 맞춰 알맞은 동작 구간을 재생합니다 */
 function workoutClip(st) {
   const manual = !on('timer');
-  const side = st.rep % 2 === 1 ? 'a' : 'b';
+  // 1회(왼팔+오른다리)는 b 영상, 2회(오른팔+왼다리)는 a 영상 — 원본 영상 속 팔다리 방향 기준
+  const side = st.rep % 2 === 1 ? 'b' : 'a';
   if (st.type === 'prep' || manual) return { name: st.ex + '-loop', loop: true };
   if (st.ex === 'plank') return st.type === 'hold' ? { name: 'plank-loop', loop: true } : { name: 'plank-loop', still: true };
   if (st.ex === 'mckenzie') return { name: st.type === 'hold' ? 'mckenzie-up' : 'mckenzie-down' };

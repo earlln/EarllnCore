@@ -1,5 +1,5 @@
 // 오프라인에서도 열리도록 앱 파일을 캐시합니다. 파일을 고치면 VERSION을 올려 주세요.
-const VERSION = 'core-fit-v7';
+const VERSION = 'core-fit-v8';
 const FILES = ['./', 'index.html', 'style.css', 'app.js', 'i18n.js', 'version.js', 'manifest.webmanifest',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
   ...['mckenzie', 'plank', 'birddog'].flatMap(id => [`media/${id}.jpg`, `media/${id}-loop.mp4`]),
